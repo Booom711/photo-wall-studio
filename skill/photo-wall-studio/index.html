@@ -1370,6 +1370,121 @@ REG.push((()=>{
   }
   return T;})());
 
+/* ---------- 模板 11：立体滚动照片墙 ----------
+   照片连成一条（或 2–3 条）长条，贴在一面“折叠墙”上：左边远处平铺 → 中间斜面 → 右边近处平铺（剪映「播放器 III」那种透视），
+   匀速从近处滚向远处，首尾无缝循环；左侧放一个抠图主角挡住折缝。
+   透视：世界坐标里的折线 + 针孔相机；两段平铺是仿射的，一次 drawImage，斜面按屏幕竖切片画（与胶片模板 blitStrip 同思路）。 */
+REG.push((()=>{
+  let ctx,st=null;const V=id=>T.values[id],h01=k=>hashI(k)/4294967296,MINT=8;
+  const sm=smallStore(560,()=>{if(cur===T&&!playing)drawIdle();refreshCards();});
+  const heroC=new Map();
+  const lum=hex=>{const n=parseInt(String(hex).slice(1),16);return ((n>>16&255)*0.299+(n>>8&255)*0.587+(n&255)*0.114)/255;};
+  const T={id:'scroll3d',name:'立体滚动照片墙',desc:'折叠透视长条匀速滚动',values:{},
+    settings:[{id:'rows',label:'排数',type:'select',value:'1',options:[['1','1 排（教程同款）'],['2','2 排（相邻反向滚动）'],['3','3 排（相邻反向滚动）']],rebuild:1},
+      {id:'dur',label:'每张时长',type:'range',min:0.4,max:4,step:0.1,value:1.0,unit:'秒',rebuild:1},
+      {id:'fold',label:'折角',type:'range',min:25,max:80,step:1,value:60,unit:'°'},
+      {id:'depth',label:'透视强度',type:'range',min:1.2,max:3,step:0.05,value:1.9,unit:'倍'},
+      {id:'roll',label:'整体倾斜',type:'range',min:-30,max:30,step:1,value:0,unit:'°'},
+      {id:'gap',label:'照片间距',type:'range',min:0,max:10,step:0.5,value:2,unit:'%',rebuild:1},
+      {id:'aspect',label:'照片比例',type:'select',value:'auto',options:[['auto','按原图（横竖混排）'],['16:9','统一 16:9'],['3:2','统一 3:2'],['4:3','统一 4:3'],['1:1','统一 1:1']],rebuild:1},
+      {id:'bg',label:'背景',type:'select',value:'#000000',options:[['#000000','黑色'],['#141519','深灰'],['#0b1226','深蓝'],['#24180f','暖棕'],['#f3f1ec','米白']]},
+      {id:'hero',label:'前景主角',type:'select',value:'auto',options:[['auto','自动（★ 主角或第一张，有人像就抠图）'],['card','相框卡片'],['off','不要']],rebuild:1},
+      {id:'flip',label:'左右镜像',type:'check',value:false},{id:'stars',label:'星点',type:'check',value:true},
+      {id:'showTitle',label:'左上角标题',type:'check',value:true},{id:'pulse',label:'鼓点轻微脉动',type:'check',value:false}],
+    note:'照片连成长条贴在一面折叠的墙上（左远右近），匀速滚动、首尾无缝循环，导出的视频可以直接循环播放（不卡点）。前景主角：★ 主角优先，否则自动在前几张里找有人的照片抠图并加白色柔光，找不到就用相框卡片；主角不再出现在长条里。',
+    init(){const N=S.seq.length,mode=V('hero');let hero=-1,kind='off';
+      if(mode!=='off'&&N){const star=S.seq.find(i=>S.items[i].hero);
+        if(mode==='card'){hero=star!=null?star:S.seq[0];kind='card';}
+        else{// 主角：★ 优先，否则按顺序找前 8 张里第一张有人像的（手涂 / 透明 PNG / 自动识别出人像）；还没识别的先识别；都没人就用第一张做相框卡片
+          const pool=star!=null?[star]:S.seq.slice(0,Math.min(N,8));hero=pool[0];kind='card';
+          for(const i of pool){const it=S.items[i];if(it.mask||it.cut||(it.seg&&it.seg.person)){hero=i;kind='cut';break;}if(!it.seg){hero=i;kind='pending';break;}}}}
+      const list=(hero>=0&&N>=4)?S.seq.filter(i=>i!==hero):S.seq.slice(),M=list.length;
+      const fix={'16:9':16/9,'3:2':1.5,'4:3':4/3,'1:1':1}[V('aspect')],gp=V('gap')/100;
+      const ar=list.map(i=>fix||clamp(S.items[i].w/S.items[i].h,0.7,1.8)),cum=[];let L=0;for(const a of ar){cum.push(L);L+=a+gp;}
+      const P=Math.max(0.5,M*V('dur')),loops=Math.max(1,Math.ceil(MINT/P)),total=P*loops;
+      // 星点闪烁频率取成片长的整数倍，保证首尾无缝
+      st={N,M,list,ar,cum,L,gp,hero,kind,P,total,v:L/P,stars:null};return st;},
+    keyTimes(){const o=[],n=Math.min(12,Math.max(3,st.M));for(let i=0;i<n;i++)o.push({t:(i+0.5)*st.P/n,w:1});return o;},
+    get duration(){return st?st.total:0},
+    get idleT(){return Math.min(st.total-0.05,1.3);},
+    need(t){const G=geom(),s=new Set();for(let r=0;r<G.rows;r++)cellsOf(G,r,wrap(t),j=>s.add(st.list[j]));if(st.hero>=0)s.add(st.hero);return [...s];},
+    drawFrame(c,t){ctx=c;render(wrap(t));},
+    info(){return `立体滚动照片墙 · ${st.M} 张 · ${V('rows')} 排 · 无缝循环`;},
+    prepMsg:k=>`🧠 正在准备照片墙（缩小图 / 主角抠图，${k}，本机处理）…`,
+    async prepare(progress){let n=await sm.prepare(k=>progress&&progress(k+'/'+S.items.length));
+      for(let i=0;i<9;i++){T.init(S);if(st.kind!=='pending')break;progress&&progress('抠图 '+(i+1));n++;await SEG.segment(S.items[st.hero]);}T.init(S);return n;},
+    notices(){const o=[];if(!st)return o;
+      if(st.kind==='pending')o.push({lv:'info',text:'正在自动识别前景主角的人像并抠图（本机运行），完成后预览会自动更新。'});
+      if(V('hero')==='auto'&&st.kind==='card')o.push({lv:'warn',text:`没在前几张里识别到人像，前景主角先用相框卡片（第 ${st.hero+1} 张）。想要抠图主角：点一张有人物的照片「★ 设为主角」，或用笔刷涂出轮廓 / 上传透明 PNG。`});
+      if(st.M<6)o.push({lv:'info',icon:'ℹ️ ',text:`长条里只有 ${st.M} 张，会循环重复；8 张以上更好看。`});return o;},
+    badges(){const m=new Map();if(st.hero>=0){const it=S.items[st.hero];m.set(st.hero,st.kind==='pending'?'… 识别中':st.kind==='card'?'▣ 主角':it.mask?'✎ 主角':it.cut?'PNG 主角':'✂ 主角');}return m;}};
+  T.invalidate=i=>{const it=S.items[i];if(it)for(const k of [...heroC.keys()])if(k.startsWith(it.id+'|'))heroC.delete(k);};
+  const wrap=t=>{const P=st.total;return ((t%P)+P)%P;};
+  // 几何：相机在原点看 +z，焦距 f=W；近墙 z=1，远墙 z=k；斜面从 A(x1,k) 到 B(x2,1)；弧长 s=0 在 A，s=Lr 在 B
+  function geom(){const rows=+V('rows'),land=W>H,k=V('depth'),phi=V('fold')*Math.PI/180;
+    const block=Math.min(0.73*H,W*(0.62+0.45*(rows-1))),rowPx=block/(rows+st.gp*(rows-1)),f=W,hw=rowPx/f;
+    const cx=W/2,cy=H*0.5,dz=k-1,dx=dz/Math.tan(phi),x2=0.37,x1=x2-dx,Lr=Math.hypot(dx,dz);
+    const R=Math.hypot(W,H)/2+60;// 旋转后也要铺到画面外（overscan）
+    return{rows,k,f,hw,cx,cy,dz,dx,x1,x2,Lr,block,X1:cx+f*x1/k,X2:cx+f*x2,s0:-R/f*k-x1,s1:Lr+R/f-x2};}
+  const XofS=(G,s)=>{const u=s/G.Lr;return G.cx+G.f*(G.x1+u*G.dx)/(G.k-u*G.dz);};
+  const SofX=(G,X)=>{const r=(X-G.cx)/G.f;return (r*G.k-G.x1)/(G.dx+r*G.dz)*G.Lr;};
+  const phase=(r,rows)=>st.cum[Math.floor(r*st.M/rows)%st.M]+r*0.31;
+  // 第 r 排在时刻 t 可见的照片：fn(列表下标, 起点弧长, 终点弧长)（世界单位）
+  function cellsOf(G,r,t,fn){if(!st.M)return;const dir=r%2?1:-1,sh=phase(r,G.rows)+dir*st.v*t,a0=G.s0/G.hw-sh,a1=G.s1/G.hw-sh;
+    for(let n=Math.floor(a0/st.L);n<=Math.floor(a1/st.L);n++)for(let j=0;j<st.M;j++){const a=n*st.L+st.cum[j],b=a+st.ar[j];if(b<a0||a>a1)continue;fn(j,(a+sh)*G.hw,(b+sh)*G.hw);}}
+  function crop(img,ar){let x=0,y=0,w=img.width,h=img.height;if(w/h>ar){const w2=h*ar;x=(w-w2)/2;w=w2;}else{const h2=w/ar;y=(h-h2)/2;h=h2;}return{x,y,w,h};}
+  function drawCell(G,idx,ar,c0,c1,yTop,fl){const full=S.get(idx),small=sm.get(idx),span=c1-c0;
+    const piece=(a,b,Xa,Xb,z)=>{const h=G.f*G.hw/z,y=G.cy+G.f*yTop/z;let fa=(a-c0)/span,fb=(b-c0)/span,xa=Xa,xb=Xb;if(fl){xa=W-Xb;xb=W-Xa;const q=fa;fa=1-fb;fb=1-q;}
+      if(fb-fa<=1e-6||xb-xa<=0)return;const img=(h<420&&small)?small:(full||small);
+      if(!img){ctx.fillStyle='#1c1c1f';ctx.fillRect(xa,y,xb-xa,h);return;}const c=crop(img,ar);ctx.drawImage(img,c.x+fa*c.w,c.y,(fb-fa)*c.w,c.h,xa,y,xb-xa,h);};
+    let a=c0,b=Math.min(c1,0);if(b>a)piece(a,b,G.cx+G.f*(G.x1+a)/G.k,G.cx+G.f*(G.x1+b)/G.k,G.k);
+    a=Math.max(c0,G.Lr);b=c1;if(b>a)piece(a,b,G.cx+G.f*(G.x2+a-G.Lr),G.cx+G.f*(G.x2+b-G.Lr),1);
+    a=Math.max(c0,0);b=Math.min(c1,G.Lr);if(b>a){const Xa=XofS(G,a),Xb=XofS(G,b),n=Math.max(1,Math.ceil((Xb-Xa)/3));let sp=a,Xp=Xa;
+      for(let i=1;i<=n;i++){const Xi=i===n?Xb:Xa+(Xb-Xa)*i/n,si=i===n?b:SofX(G,Xi);piece(sp,si,Xp,Xi+(i<n?0.7:0),G.k-((sp+si)/2/G.Lr)*G.dz);sp=si;Xp=Xi;}}}
+  function starField(t){const n=Math.round(W*H/9000),P=st.total;ctx.save();ctx.fillStyle='#fff';
+    for(let i=0;i<n;i++){const x=h01(i*7+1)*W,y=h01(i*7+2)*H,s=1+h01(i*7+3)*(h01(i*7+6)>0.9?2.6:1.2),m=Math.max(1,Math.round(P*(0.12+0.3*h01(i*7+5))));
+      ctx.globalAlpha=(0.18+0.5*h01(i*7+4))*(0.55+0.45*Math.sin(t*Math.PI*2*m/P+i));ctx.fillRect(x,y,s,s);}ctx.restore();}
+  function pulseAt(t){let tb=null,a=1;if(S.peaks){for(const p of S.peaks){if(p.t>t)break;tb=p.t;a=p.strong?1:0.55;}}else{const d=V('dur');tb=Math.floor(t/d)*d;}
+    return tb==null?0:0.022*a*Math.exp(-(t-tb)*7);}
+  // 抠图主角：裁到人像外框 + 白色柔光，按照片 id 缓存
+  function heroArt(idx){const it=S.items[idx],key=it.id+'|cut';if(heroC.has(key))return heroC.get(key);const b=S.get(idx);if(!b)return null;
+    const w=b.width,h=b.height,sub=document.createElement('canvas');sub.width=w;sub.height=h;const g=sub.getContext('2d');g.drawImage(b,0,0);
+    if(!it.cut||it.mask){g.globalCompositeOperation='destination-in';if(it.mask){if('filter' in g)g.filter='blur(4px)';g.drawImage(it.mask,0,0,w,h);g.filter='none';}
+      else if(it.seg&&it.seg.person){g.imageSmoothingQuality='high';g.drawImage(it.seg.mask,0,0,w,h);}else{heroC.set(key,null);return null;}}
+    const pw=160,ph=Math.max(1,Math.round(160*h/w)),pc=document.createElement('canvas');pc.width=pw;pc.height=ph;const pg=pc.getContext('2d',{willReadFrequently:true});pg.drawImage(sub,0,0,pw,ph);
+    // 只留最大的一块人像（去掉模型误判出来的零碎小块），外框按这一块算
+    const d=pg.getImageData(0,0,pw,ph).data,lab=new Int32Array(pw*ph),stk=[];let best=0,bestN=0,nl=0,x0=pw,x1=-1,y0=ph,y1=-1;
+    for(let k0=0;k0<pw*ph;k0++){if(lab[k0]||d[k0*4+3]<=60)continue;nl++;let n=0;lab[k0]=nl;stk.push(k0);
+      while(stk.length){const k=stk.pop(),x=k%pw;n++;for(const q of [k-1,k+1,k-pw,k+pw]){if(q<0||q>=pw*ph||lab[q]||d[q*4+3]<=60)continue;if((q===k-1&&x===0)||(q===k+1&&x===pw-1))continue;lab[q]=nl;stk.push(q);}}
+      if(n>bestN){bestN=n;best=nl;}}
+    if(!best){heroC.set(key,null);return null;}
+    const km=pg.createImageData(pw,ph);for(let k=0;k<pw*ph;k++){const x=k%pw,y=(k-x)/pw;if(lab[k]===best){km.data[k*4+3]=255;if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y;}
+      else if(!lab[k]&&d[k*4+3]>0){let nb=false;for(const q of [k-1,k+1,k-pw,k+pw])if(q>=0&&q<pw*ph&&lab[q]===best)nb=true;if(nb)km.data[k*4+3]=255;}}
+    pg.clearRect(0,0,pw,ph);pg.putImageData(km,0,0);g.globalCompositeOperation='destination-in';if('filter' in g)g.filter='blur(2px)';g.drawImage(pc,-w/pw,-h/ph,w+2*w/pw,h+2*h/ph);g.filter='none';g.globalCompositeOperation='source-over';
+    const bx=Math.max(0,(x0-1)/pw*w),by=Math.max(0,(y0-1)/ph*h),bw=Math.min(w-bx,(x1-x0+3)/pw*w),bh=Math.min(h-by,(y1-y0+3)/ph*h),pad=Math.round(bh*0.05);
+    const c=document.createElement('canvas');c.width=Math.ceil(bw+2*pad);c.height=Math.ceil(bh+2*pad);const cg=c.getContext('2d');
+    const sil=document.createElement('canvas');sil.width=c.width;sil.height=c.height;const sg=sil.getContext('2d');sg.drawImage(sub,bx,by,bw,bh,pad,pad,bw,bh);sg.globalCompositeOperation='source-in';sg.fillStyle='#fff';sg.fillRect(0,0,c.width,c.height);
+    if('filter' in cg){cg.filter=`blur(${Math.max(3,pad*0.42)}px)`;cg.drawImage(sil,0,0);cg.drawImage(sil,0,0);cg.filter='none';}else{cg.shadowColor='#fff';cg.shadowBlur=pad*0.8;cg.drawImage(sil,0,0);cg.shadowBlur=0;}
+    cg.drawImage(sub,bx,by,bw,bh,pad,pad,bw,bh);const o={c,pad,bw,bh,bottom:y1>=ph-3};heroC.clear();heroC.set(key,o);return o;}
+  function drawHero(G,fl){if(st.hero<0)return;/* 还在识别人像（或示例模式不跑抠图）时先用相框卡片 */const land=W>H,top=G.cy-2.2*G.block/(2*1.9);
+    if(st.kind==='cut'){const A=heroArt(st.hero);if(A){const bot=H*1.015;let hh=land?bot-top:Math.min(bot-top,H*0.64),ww=hh*A.bw/A.bh;const mw=land?0.5*W:0.85*W;if(ww>mw){ww=mw;hh=ww*A.bh/A.bw;}
+        let x=Math.max(G.X1-0.08*W,ww*0.42);if(fl)x=W-x;const s=hh/A.bh;ctx.drawImage(A.c,x-ww/2-A.pad*s,bot-hh-A.pad*s,A.c.width*s,A.c.height*s);return;}}
+    const b=S.get(st.hero)||sm.get(st.hero);if(!b)return;const ar=clamp(b.width/b.height,0.75,1.5),ch=land?H*0.5:Math.min(H*0.3,W*0.7/ar),cw=ch*ar,bd=Math.round(ch*0.035);
+    let x=Math.max(G.X1-0.04*W,cw/2+bd+0.05*W);if(fl)x=W-x;const y=G.cy+(land?0.12*H:0.2*G.block);
+    ctx.save();ctx.translate(x,y);ctx.rotate((fl?3:-3)*Math.PI/180);ctx.shadowColor='rgba(0,0,0,.6)';ctx.shadowBlur=44;ctx.shadowOffsetY=18;ctx.fillStyle='#fff';ctx.fillRect(-cw/2-bd,-ch/2-bd,cw+2*bd,ch+2*bd);
+    ctx.shadowColor='transparent';ctx.shadowBlur=0;ctx.shadowOffsetY=0;cover(ctx,b,-cw/2,-ch/2,cw,ch);ctx.restore();}
+  function drawTitle(fl,dark){const txt=S.title();if(!V('showTitle')||!txt)return;const land=W>H,fs=Math.round(Math.min(W,H)*(land?0.05:0.058));
+    ctx.save();ctx.font=`600 ${fs}px ${FONT_T}`;ctx.textBaseline='top';ctx.textAlign=fl?'right':'left';ctx.fillStyle=dark?'#fff':'#16171a';ctx.shadowColor=dark?'rgba(0,0,0,.7)':'rgba(255,255,255,.6)';ctx.shadowBlur=14;
+    if('letterSpacing' in ctx)ctx.letterSpacing=Math.round(fs*0.12)+'px';ctx.fillText(txt,fl?W*0.94:W*0.06,land?H*0.07:H*0.075);ctx.restore();}
+  function render(t){const G=geom(),fl=V('flip'),bg=V('bg'),dark=lum(bg)<0.45;ctx.setTransform(1,0,0,1,0,0);ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';
+    ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);if(V('stars')&&dark)starField(t);
+    const sc=V('pulse')?1+pulseAt(t):1,roll=V('roll')*Math.PI/180*(fl?-1:1);
+    ctx.save();ctx.translate(G.cx,G.cy);ctx.rotate(roll);ctx.scale(sc,sc);ctx.translate(-G.cx,-G.cy);ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='medium';
+    const bw=st.gp*0+(G.rows+st.gp*(G.rows-1));
+    for(let r=0;r<G.rows;r++){const yTop=(-bw/2+r*(1+st.gp))*G.hw;cellsOf(G,r,t,(j,a,b)=>drawCell(G,st.list[j],st.ar[j],a,b,yTop,fl));}
+    ctx.restore();drawHero(G,fl);drawTitle(fl,dark);}
+  return T;})());
+
 /* 待接入的模板（按排期），先在选择器里占位 */
 const SOON=[];
 

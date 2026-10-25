@@ -13,7 +13,7 @@
 
 **照片墙工作室**是一个**本地优先**的网页应用：一次导入最多 200 张照片和一段音乐，选模板就能生成**卡点照片墙视频**，直接导出 MP4（或 WebM）和关键帧图片。所有用户素材处理（抠图、缩图、节拍分析、渲染、编码）都在浏览器本地完成，**照片不会上传到任何地方**。页面在导入前会用随项目发布的手绘示例图展示模板与成片效果。
 
-### 10 个模板
+### 11 个模板
 | # | 模板 | 一句话说明 |
 |---|---|---|
 | 1 | 回忆快闪 | 跟着鼓点一张张闪现，5 种转场（缩放白闪 / 黑闪 / 滑动 / 震屏 / RGB 分离） |
@@ -26,11 +26,12 @@
 | 8 | 无限螺旋 | 照片沿 3D 螺旋向深处延伸，镜头穿行（漩涡 / 螺旋塔） |
 | 9 | 照片圣诞树 | 发光照片卡片组成旋转圣诞树，星星、下雪、散开再聚拢 |
 | 10 | 拍立得散落 | 拍立得一张张掉到桌面堆起来，手写日期，结尾拉远看全貌 |
+| 11 | 立体滚动照片墙 | 照片连成长条贴在“折叠墙”上（左远右近的透视），匀速滚动、首尾无缝循环；左侧自动抠出的人物主角带白色柔光挡住折缝（同剪映「播放器 III」效果）。可选 1–3 排（相邻反向）、折角、透视强度、整体倾斜、间距、背景色、鼓点脉动 |
 
 ### 功能
 - **只需上传原图**：缩图、抠图等全部在页面里自动完成；HEIC 请先转 JPG。
 - **页面内自动抠人像**（内置 MediaPipe Selfie Segmenter 模型，手写 JS 推理，本机运行）；不满意可用笔刷修补或上传透明 PNG。
-- **先看效果再上传**：12 张手绘示例图会自动填入 10 个模板卡片和成片预览；上传真实照片后一次性替换示例素材。
+- **先看效果再上传**：12 张手绘示例图会自动填入全部模板卡片和成片预览；上传真实照片后一次性替换示例素材。
 - **排序与多选**：点按缩略图多选，拖到另一张照片的位置即可换位；选中边框、落点反馈和拖动阻尼让操作更明确，手机支持长按后拖。
 - **卡点**：自动分析音乐节拍，换图 / 闪白 / 转动都卡在鼓点上；没有音乐也能用。
 - **4 种画面比例**：9:16（1080×1920）、16:9（1920×1080）、3:4（1080×1440）、4:3（1440×1080）。每个模板都会按横竖屏**重新排版**，不是拉伸或加黑边；比例会被记住。
@@ -62,7 +63,7 @@
 - 不支持 HEIC（请先转 JPG）。
 
 ### 预览
-四种比例 × 10 个模板：
+四种比例 × 10 个模板（截图暂未包含第 11 个「立体滚动照片墙」）：
 
 ![ratios](docs/img/ratios_all_templates.jpg)
 
@@ -87,7 +88,7 @@
 
 **Photo Wall Studio** is a **local-first** web app. Import up to 200 photos and an optional song, pick a template, and get a **beat-synced photo-wall video**, exported as MP4 (or WebM) plus key-frame images. User media processing — cut-out, resizing, beat detection, rendering and encoding — runs locally in your browser; **photos are never uploaded**. Before import, bundled hand-drawn demo images show the real template and final-preview effects.
 
-### 10 templates
+### 11 templates
 | # | Template | One-liner |
 |---|---|---|
 | 1 | Memory Flash (回忆快闪) | Photos flash on the beat with 5 transitions (zoom+flash, black, slide, shake, RGB split) |
@@ -100,6 +101,7 @@
 | 8 | Infinite Spiral (无限螺旋) | Photos along a 3D spiral into depth with a fly-through camera (vortex / tower) |
 | 9 | Photo Christmas Tree (照片圣诞树) | Glowing photo cards form a rotating tree with star, snow, scatter-and-regather |
 | 10 | Polaroid Pile (拍立得散落) | Polaroids drop and pile up on a table with handwritten dates; ending pulls back to the whole pile |
+| 11 | 3D Scrolling Wall (立体滚动照片墙) | A continuous photo strip on a folded wall in perspective (far on the left, near on the right) scrolls at constant speed as a seamless loop; an auto cut-out hero with a soft white glow hides the fold (like CapCut's "Player III" effect). 1–3 rows (adjacent rows opposite), fold angle, perspective, tilt, gap, background, optional beat pulse |
 
 ### Features
 - **Upload originals only** — thumbnails and cut-outs are generated in the page. (Convert HEIC to JPG first.)

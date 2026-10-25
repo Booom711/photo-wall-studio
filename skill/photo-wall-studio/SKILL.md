@@ -1,6 +1,6 @@
 ---
 name: photo-wall-studio
-description: Help a user turn up to 200 photos plus optional music into a beat-synced photo-wall video or key-frame images using Photo Wall Studio (照片墙), a local-first browser app with ten templates and four aspect ratios. Use for 照片墙/卡点视频/photo slideshow/photo collage video, Douyin/TikTok/Reels/Shorts-style memories, polaroid/film/3D-ring/Christmas-tree photo videos, or still key frames/contact sheets.
+description: Help a user turn up to 200 photos plus optional music into a beat-synced photo-wall video or key-frame images using Photo Wall Studio (照片墙), a local-first browser app with eleven templates and four aspect ratios. Use for 照片墙/卡点视频/photo slideshow/photo collage video, Douyin/TikTok/Reels/Shorts-style memories, polaroid/film/3D-ring/Christmas-tree/3D-scrolling-wall photo videos, or still key frames/contact sheets.
 ---
 
 # Photo Wall Studio (照片墙)
@@ -41,6 +41,7 @@ Recommend **desktop Chrome or Edge (latest)** — they export MP4 (H.264) direct
 | 无限螺旋 Infinite Spiral | 3D spiral fly-through | Draggable in preview. <8–10 photos repeat. |
 | 照片圣诞树 Christmas Tree | festive tree of glowing photos | Greeting text editable; optional webcam wave gesture is preview-only (not in export). |
 | 拍立得散落 Polaroid Pile | polaroids dropping into a pile | Handwritten date/custom captions; with >120 photos the final pile shows each photo small. |
+| 立体滚动照片墙 3D Scrolling Wall | photo strip on a folded perspective wall, constant-speed seamless loop (not beat-synced) | Hero in front: ★ photo, else the first photo with a person is auto cut out (white glow); no person → framed card (notice says which). Options: 排数 1–3 (adjacent rows scroll opposite ways), 折角, 透视强度, 整体倾斜, 间距, 照片比例, 背景, 左右镜像, 鼓点轻微脉动. |
 
 ## 4. Troubleshooting
 - **Exported WebM instead of MP4** → browser can't record MP4; use latest desktop Chrome/Edge, or convert (e.g. CapCut/剪映, HandBrake, ffmpeg `ffmpeg -i in.webm -c:v libx264 -c:a aac out.mp4`).
@@ -60,6 +61,6 @@ Recommend **desktop Chrome or Edge (latest)** — they export MP4 (H.264) direct
 - Key-frame export is slower while preview is playing.
 
 ## 6. If you can run a browser yourself
-If you have a browser and the user explicitly gives you photos to process locally, serve this folder over localhost, upload files to `#fImg` (photos) and `#fAud` (music), choose a ratio with the `#ratios` select (`9:16`, `16:9`, `3:4`, `4:3`), choose a template with `.tpl[data-id=<id>]` (ids: flash, film, grid, player, ring, flex, dome, spiral, xmas, polaroid), and click `#bExport` (video) or `#bKf` (key frames). Confirm that demo assets were replaced before export. Keep everything local; never send the user's photos to external services.
+If you have a browser and the user explicitly gives you photos to process locally, serve this folder over localhost, upload files to `#fImg` (photos) and `#fAud` (music), choose a ratio with the `#ratios` select (`9:16`, `16:9`, `3:4`, `4:3`), choose a template with `.tpl[data-id=<id>]` (ids: flash, film, grid, player, ring, flex, dome, spiral, xmas, polaroid, scroll3d), and click `#bExport` (video) or `#bKf` (key frames). Confirm that demo assets were replaced before export. Keep everything local; never send the user's photos to external services.
 
 License: MIT (own code); embedded MediaPipe Selfie Segmenter weights Apache-2.0, Caveat font OFL-1.1 — see the repository's THIRD_PARTY_NOTICES.md.
