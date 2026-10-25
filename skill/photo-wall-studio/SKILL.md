@@ -1,29 +1,30 @@
 ---
 name: photo-wall-studio
-description: Help a user turn a batch of photos (up to 200) plus optional music into a beat-synced photo-wall video or key-frame images using Photo Wall Studio (照片墙), a single-file offline web page. Use when the user wants a 照片墙/卡点视频/photo slideshow/photo collage video, a Douyin/TikTok/Reels/Shorts-style memories video, a polaroid/film/3D ring/Christmas-tree photo video, or still key frames/contact sheets from such a video, in 9:16, 16:9, 3:4 or 4:3.
+description: Help a user turn up to 200 photos plus optional music into a beat-synced photo-wall video or key-frame images using Photo Wall Studio (照片墙), a local-first browser app with ten templates and four aspect ratios. Use for 照片墙/卡点视频/photo slideshow/photo collage video, Douyin/TikTok/Reels/Shorts-style memories, polaroid/film/3D-ring/Christmas-tree photo videos, or still key frames/contact sheets.
 ---
 
 # Photo Wall Studio (照片墙)
 
-Photo Wall Studio is one self-contained HTML file (`index.html` in this folder, ~540 KB). It runs entirely in the user's browser: no install, no account, no network, photos are never uploaded. The user imports original photos (and optionally a song), picks a template and aspect ratio, and exports an MP4/WebM video or key-frame images.
+Photo Wall Studio is a local-first browser app bundled in this folder (`index.html` plus `assets/demo/`). It needs no account, and imported photos, music, cut-outs, rendering and encoding stay in the user's browser. The user imports original photos (and optionally a song), picks a template and aspect ratio, and exports an MP4/WebM video or key-frame images.
 
 You (the agent) normally **guide the user** through the page; the rendering happens in their browser. Do not ask the user to upload their photos to you or to any service.
 
 ## 1. Get the page to the user
 Pick whichever works for them:
 - **Online (easiest):** https://booom711.github.io/photo-wall-studio/
-- **Offline file:** give them the bundled `index.html` from this skill folder (or download https://github.com/Booom711/photo-wall-studio/raw/main/index.html). They double-click it to open in a browser; it works with no internet.
+- **Offline bundle:** give them this skill folder, keeping `index.html` and `assets/demo/` together. Open `index.html` in a browser. The demo assets may require a small local static server in browsers that block `fetch()` from `file://`; imported photos and exports still stay local.
 - Repo with screenshots and demo videos: https://github.com/Booom711/photo-wall-studio
 
 Recommend **desktop Chrome or Edge (latest)** — they export MP4 (H.264) directly. Safari works; Firefox exports WebM only. Phones are fine for preview and key frames; use a computer for exporting longer videos.
 
 ## 2. Walk the user through it
-1. **① Import**: click the dashed box (or drag files in) and select **original photos** — up to 200 (JPG/PNG/WebP; convert HEIC to JPG first). Do not pre-crop, resize or cut out anything: the page makes thumbnails and person cut-outs itself. Optionally click 「添加音乐」 to add mp3/m4a/wav — beats are detected automatically.
-2. **② Choose ratio + template**: 「画面比例」 9:16 (1080×1920, Douyin/Reels/Shorts), 16:9 (1920×1080, YouTube/TV), 3:4 (1080×1440, Xiaohongshu feed), 4:3 (1440×1080). Then pick a template card and press 「▶ 预览」. Each template re-lays out for portrait/landscape; landscape photos look best in 16:9/4:3, portrait photos in 9:16/3:4.
-3. **Order**: drag thumbnails to reorder (long-press then drag on phones). Tap a thumbnail for 前移/后移/删除/★ 设为主角 (set as hero). Order and ★ apply to all templates.
-4. **Read the notices** (yellow/blue boxes under ③) — they name the specific photos that need something and how to fix it (see table below). Thumbnails get badges like ✂ 主角, ⚠ 无人像, ⚠ 偏宽 / ⚠ 偏高.
-5. **③ Adjust**: title text (标题文案), per-photo duration, style options. Most settings rebuild the preview instantly.
-6. **Export**:
+1. **See the result first**: before any upload, twelve bundled hand-drawn demo images fill all template cards and the main canvas. Switch templates or press 「▶ 预览」 to understand the effect. Video/key-frame export stays disabled until real photos are imported.
+2. **① Import**: click the compact import box (or drag files in) and select **original photos** — up to 200 (JPG/PNG/WebP; convert HEIC to JPG first). The first real import replaces the demos rather than appending to them. Optionally click 「添加音乐」 to add mp3/m4a/wav; beats are detected automatically.
+3. **② Choose template**: template cards sit above the main preview and use a uniform, larger thumbnail size. Pick a card and press 「▶ 预览」. Each template re-lays out for portrait/landscape.
+4. **Order and select**: click/tap photos to multi-select. Drag a photo directly onto another photo to swap positions; the target area itself is the drop zone. Selected photos have a strong outline. Use the delete action for the current selection. On phones, long-press then drag. There are no move-front/move-back/hero/retouch button rows.
+5. **Read the notices** (yellow/blue boxes under ③) — they name the specific photos that need something and how to fix it (see table below). Thumbnails get badges like ✂ 主角, ⚠ 无人像, ⚠ 偏宽 / ⚠ 偏高.
+6. **③ Adjust**: choose 「画面比例」 — 9:16 (1080×1920), 16:9 (1920×1080), 3:4 (1080×1440), or 4:3 (1440×1080) — then edit title, timing and template-specific options. Most settings rebuild the preview instantly.
+7. **Export**:
    - 「⬇ 导出视频」: records the video in real time (an N-second video takes N seconds). Keep the tab visible and in front; do not switch tabs or minimise. File name includes template and ratio, e.g. `标题_3D 圆环_16x9.mp4`. Format selector: 自动（优先 MP4）/ WebM.
    - 「🖼 导出关键帧」: current frame or N auto-picked key frames (favours beat/transition moments); untick unwanted ones; PNG or JPG; download individually, as a ZIP, or as one contact-sheet image. On iPhone use ZIP or 「分享 / 存到相册」.
 
@@ -44,7 +45,7 @@ Recommend **desktop Chrome or Edge (latest)** — they export MP4 (H.264) direct
 ## 4. Troubleshooting
 - **Exported WebM instead of MP4** → browser can't record MP4; use latest desktop Chrome/Edge, or convert (e.g. CapCut/剪映, HandBrake, ffmpeg `ffmpeg -i in.webm -c:v libx264 -c:a aac out.mp4`).
 - **Video stutters / is shorter / has frozen parts** → the tab was hidden or the computer was busy during real-time recording. Re-export with the tab in front, close heavy apps, or reduce photo count.
-- **Ratio buttons don't respond** → a recording is in progress; wait until it finishes.
+- **Ratio selector doesn't respond** → a recording is in progress; wait until it finishes.
 - **3×3 Pop-out shows oval stickers** → no person detected in that group; see the template table above.
 - **HEIC photos won't load** → convert to JPG first (iPhone: Settings › Camera › Formats › Most Compatible, or export as JPG).
 - **Photos look cropped** → choose a ratio matching most photos' orientation, use 回忆快闪 「照片适配: 自动」, or follow the template's notice.
@@ -59,6 +60,6 @@ Recommend **desktop Chrome or Edge (latest)** — they export MP4 (H.264) direct
 - Key-frame export is slower while preview is playing.
 
 ## 6. If you can run a browser yourself
-If you have a headless/automated browser and the user explicitly gives you the photos to process locally, you may open the bundled `index.html`, upload files to `#fImg` (photos) and `#fAud` (music), choose a ratio with `#ratios button[data-r="16:9"]`, a template with `.tpl[data-id=<id>]` (ids: flash, film, grid, player, ring, flex, dome, spiral, xmas, polaroid), and click `#bExport` (video) or `#bKf` (key frames). Keep everything local; never send the user's photos to external services.
+If you have a browser and the user explicitly gives you photos to process locally, serve this folder over localhost, upload files to `#fImg` (photos) and `#fAud` (music), choose a ratio with the `#ratios` select (`9:16`, `16:9`, `3:4`, `4:3`), choose a template with `.tpl[data-id=<id>]` (ids: flash, film, grid, player, ring, flex, dome, spiral, xmas, polaroid), and click `#bExport` (video) or `#bKf` (key frames). Confirm that demo assets were replaced before export. Keep everything local; never send the user's photos to external services.
 
 License: MIT (own code); embedded MediaPipe Selfie Segmenter weights Apache-2.0, Caveat font OFL-1.1 — see the repository's THIRD_PARTY_NOTICES.md.

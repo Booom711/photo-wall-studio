@@ -11,7 +11,7 @@
 
 ## 中文
 
-**照片墙工作室**是一个**单文件、完全离线**的网页（`index.html`，约 540 KB，无任何外部库、不联网）：一次导入最多 200 张照片和一段音乐，选模板就能生成**卡点照片墙视频**，直接导出 MP4（或 WebM）和关键帧图片。所有处理（抠图、缩图、节拍分析、渲染、编码）都在你的浏览器本地完成，**照片不会上传到任何地方**。
+**照片墙工作室**是一个**本地优先**的网页应用：一次导入最多 200 张照片和一段音乐，选模板就能生成**卡点照片墙视频**，直接导出 MP4（或 WebM）和关键帧图片。所有用户素材处理（抠图、缩图、节拍分析、渲染、编码）都在浏览器本地完成，**照片不会上传到任何地方**。页面在导入前会用随项目发布的手绘示例图展示模板与成片效果。
 
 ### 10 个模板
 | # | 模板 | 一句话说明 |
@@ -30,7 +30,8 @@
 ### 功能
 - **只需上传原图**：缩图、抠图等全部在页面里自动完成；HEIC 请先转 JPG。
 - **页面内自动抠人像**（内置 MediaPipe Selfie Segmenter 模型，手写 JS 推理，本机运行）；不满意可用笔刷修补或上传透明 PNG。
-- **排序**：缩略图拖动（手机长按后拖）、前移 / 后移 / 删除、**★ 设为主角**，对所有模板生效。
+- **先看效果再上传**：12 张手绘示例图会自动填入 10 个模板卡片和成片预览；上传真实照片后一次性替换示例素材。
+- **排序与多选**：点按缩略图多选，拖到另一张照片的位置即可换位；选中边框、落点反馈和拖动阻尼让操作更明确，手机支持长按后拖。
 - **卡点**：自动分析音乐节拍，换图 / 闪白 / 转动都卡在鼓点上；没有音乐也能用。
 - **4 种画面比例**：9:16（1080×1920）、16:9（1920×1080）、3:4（1080×1440）、4:3（1440×1080）。每个模板都会按横竖屏**重新排版**，不是拉伸或加黑边；比例会被记住。
 - **按需提示**：某个模板需要额外条件时（如九宫格要有人的照片、伸缩卡片里照片会被裁多），会指出具体哪几张、怎么改。
@@ -39,12 +40,12 @@
 - 手机上也能打开和预览；导出视频建议用电脑。
 
 ### 使用方法
-1. 打开 https://booom711.github.io/photo-wall-studio/ ，或下载 `index.html` 双击用浏览器打开（离线可用）。
-2. 「① 点这里选照片」导入原图（最多 200 张），可选「添加音乐」（mp3 / m4a / wav）。
-3. 「② 选模板」：选画面比例和模板，点「▶ 预览」。
-4. 拖动缩略图调顺序，点缩略图可前移 / 后移 / 删除 / ★ 设主角；按黄色提示补充素材。
-5. 「③ 调整」里改标题、节奏、样式等。
-6. 点「⬇ 导出视频」（录制期间保持页面在前台），或「🖼 导出关键帧」。
+1. 打开 https://booom711.github.io/photo-wall-studio/ ，先切换模板或点「▶ 预览」查看默认手绘样片。
+2. 「01 导入素材」导入原图（最多 200 张），可选「添加音乐」（mp3 / m4a / wav）；真实照片会替换默认样片。
+3. 在「02 选择模板」直接选模板；画面比例在「03 调整效果」的下拉列表中选择。
+4. 点按照片可多选；把照片直接拖到目标照片的位置即可换位，选择后可删除。
+5. 调整标题、节奏和模板样式，点「▶ 预览」。
+6. 上传真实照片后可点「保存视频」或「导出关键帧」。录制期间保持页面在前台。
 
 ### 浏览器建议
 - **推荐：电脑版 Chrome / Edge 最新版**（能直接导出 MP4 H.264）。
@@ -78,13 +79,13 @@
 16:9 样片抽帧：![demo frames](docs/img/demo_16x9_frames.jpg)
 
 ### 作为 Agent Skill 使用
-`skill/photo-wall-studio/` 是一个可分发的 Agent Skill（含 `SKILL.md` 和自带的 `index.html`），复制到你的 skills 目录即可让 AI 助手指导用户做照片墙视频。
+`skill/photo-wall-studio/` 是一个可分发的 Agent Skill（含 `SKILL.md`、页面和默认示例素材），复制整个目录到 skills 目录即可让 AI 助手指导用户做照片墙视频。
 
 ---
 
 ## English
 
-**Photo Wall Studio** is a **single-file, fully offline** web page (`index.html`, ~540 KB, no external libraries, no network). Import up to 200 photos and an optional song, pick a template, and get a **beat-synced photo-wall video**, exported as MP4 (or WebM) plus key-frame images. Everything — cut-out, resizing, beat detection, rendering, encoding — runs locally in your browser; **photos are never uploaded**.
+**Photo Wall Studio** is a **local-first** web app. Import up to 200 photos and an optional song, pick a template, and get a **beat-synced photo-wall video**, exported as MP4 (or WebM) plus key-frame images. User media processing — cut-out, resizing, beat detection, rendering and encoding — runs locally in your browser; **photos are never uploaded**. Before import, bundled hand-drawn demo images show the real template and final-preview effects.
 
 ### 10 templates
 | # | Template | One-liner |
@@ -103,7 +104,8 @@
 ### Features
 - **Upload originals only** — thumbnails and cut-outs are generated in the page. (Convert HEIC to JPG first.)
 - **In-page person cut-out** (embedded MediaPipe Selfie Segmenter weights, hand-written JS inference, local); fix with a brush or upload a transparent PNG.
-- **Reorder** by drag (long-press on phones), move front/back, delete, **★ set as hero** — applies to every template.
+- **Preview before upload** with 12 bundled hand-drawn demo images across all template cards and the main canvas; importing real photos replaces the demos.
+- **Multi-select and reorder**: click/tap thumbnails to select, then drag a photo directly onto another photo to swap them; phones support long-press and drag.
 - **Beat sync**: music is analyzed automatically; cuts/flashes/rotations land on beats. Works without music too.
 - **4 aspect ratios**: 9:16 (1080×1920), 16:9 (1920×1080), 3:4 (1080×1440), 4:3 (1440×1080). Each template **re-lays out** for portrait/landscape (no stretching/letterboxing). The choice is remembered.
 - **Contextual notices** tell you which photos need attention for the current template/ratio and how to fix it.
@@ -111,12 +113,12 @@
 - **Key-frame export**: current frame or N auto-picked key frames (beats/transitions preferred), PNG/JPG, single files, ZIP, contact sheet; "Share / Save to Photos" on iOS.
 
 ### How to use
-1. Open https://booom711.github.io/photo-wall-studio/ or download `index.html` and open it in a browser (works offline).
-2. Import original photos (≤200) and optionally a song (mp3/m4a/wav).
-3. Pick an aspect ratio and a template, press ▶ Preview.
-4. Reorder thumbnails; follow the yellow notices if a template needs something.
-5. Tweak title/tempo/style under ③.
-6. Click ⬇ Export video (keep the tab in the foreground while recording) or 🖼 Export key frames.
+1. Open https://booom711.github.io/photo-wall-studio/ and switch templates or press ▶ Preview to inspect the built-in sample effects.
+2. Import original photos (≤200) and optionally a song (mp3/m4a/wav); real photos replace the demos.
+3. Pick a template above the main preview. Choose the aspect ratio from the dropdown under ③ Adjust.
+4. Multi-select thumbnails or drag one directly onto another to swap them; follow contextual notices when needed.
+5. Tweak title, timing and template style, then preview.
+6. After importing real photos, click Save Video or Export Key Frames. Keep the tab in the foreground while recording.
 
 ### Browser recommendations
 - **Best: latest desktop Chrome / Edge** (direct MP4/H.264 export).
@@ -133,7 +135,7 @@
 - HEIC is not supported.
 
 ### Use as an Agent Skill
-`skill/photo-wall-studio/` is a self-contained Agent Skill (`SKILL.md` + bundled `index.html`). Drop it into your agent's skills directory.
+`skill/photo-wall-studio/` is a distributable Agent Skill containing `SKILL.md`, the page and its bundled demo assets. Copy the whole folder into your agent's skills directory.
 
 ### Repository layout
 - `index.html` — the app (served by GitHub Pages)
