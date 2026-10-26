@@ -24,8 +24,9 @@ Recommend **desktop Chrome or Edge (latest)** — they export MP4 (H.264) direct
 4. **Order and select**: click/tap photos to multi-select. Drag a photo directly onto another photo to swap positions; the target area itself is the drop zone. Selected photos have a strong outline. Use the delete action for the current selection. On phones, long-press then drag. There are no move-front/move-back/hero/retouch button rows.
 5. **Read the notices** (yellow/blue boxes under ③) — they name the specific photos that need something and how to fix it (see table below). Thumbnails get badges like ✂ 主角, ⚠ 无人像, ⚠ 偏宽 / ⚠ 偏高.
 6. **③ Adjust**: choose 「画面比例」 — 9:16 (1080×1920), 16:9 (1920×1080), 3:4 (1080×1440), or 4:3 (1440×1080) — then edit title, timing and template-specific options. Most settings rebuild the preview instantly.
+   - In a narrow desktop/tablet browser (621–1100 px), use the top 「调整效果」 button to open these controls as a drawer; this keeps templates and the full preview in the first viewport.
 7. **Export**:
-   - 「⬇ 导出视频」: records the video in real time (an N-second video takes N seconds). Keep the tab visible and in front; do not switch tabs or minimise. File name includes template and ratio, e.g. `标题_3D 圆环_16x9.mp4`. Format selector: 自动（优先 MP4）/ WebM.
+   - 「保存视频」: records the video in real time (an N-second video takes N seconds). Keep the tab visible and in front; do not switch tabs or minimise. On mobile, the fixed progress sheet shows phase, percent, elapsed time and estimated remaining time. When finished, tap 「保存到手机相册」 and choose Save Video / the gallery in the system share sheet. If file sharing is unsupported, use the download fallback. A browser cannot silently write to the gallery. File name includes template and ratio, e.g. `标题_3D 圆环_16x9.mp4`. Format selector: 自动（优先 MP4）/ WebM.
    - 「🖼 导出关键帧」: current frame or N auto-picked key frames (favours beat/transition moments); untick unwanted ones; PNG or JPG; download individually, as a ZIP, or as one contact-sheet image. On iPhone use ZIP or 「分享 / 存到相册」.
 
 ## 3. Templates and what they need
@@ -51,6 +52,8 @@ Recommend **desktop Chrome or Edge (latest)** — they export MP4 (H.264) direct
 - **HEIC photos won't load** → convert to JPG first (iPhone: Settings › Camera › Formats › Most Compatible, or export as JPG).
 - **Photos look cropped** → choose a ratio matching most photos' orientation, use 回忆快闪 「照片适配: 自动」, or follow the template's notice.
 - **Nothing happens on a phone when exporting key frames** → use 「打包 ZIP」 or 「分享 / 存到相册」.
+- **Mobile preview is below the fold after importing** → wait two seconds for 「01 导入素材」 to collapse, or tap its header manually. The compact template strip and full preview should then fit in the first viewport at common 360×800 and 390×844 sizes.
+- **Mobile video export stops** → keep the page in front and the screen unlocked; avoid switching apps. Retry with fewer photos or a shorter template if the phone is low on memory.
 - **Beat sync feels off** → it needs a song with a clear beat; without music the page uses an even tempo. Adjust per-photo duration.
 
 ## 5. Limits (tell the user up front when relevant)
