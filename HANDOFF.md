@@ -7,6 +7,7 @@
 - 1280×720 浏览器视口逐一切换 11 个模板，页面高度均等于视口高度，右侧设置区均未发生内部溢出；移动端仍保留正常纵向滚动。
 - 坑点：Canvas 的百分比 `max-height` 在当前 Flex/Grid 组合中没有解析到期望高度，桌面端需使用基于视口的明确 `calc(100vh - 324px)`；信息浮层若放在 `overflow:hidden` 的参数卡片内会被裁切，参数卡片需允许浮层可见。
 - 新小红书 v4 包：`D:\个人网页\output\chupianba-xhs-20261026-v4\chupianba-xiaohongshu-v4.zip`，1,842,255 字节，SHA-256 `41BFB70A16B757C1406D5B463CFDC0E5F01AFB8782C9021B1EF427E5F2593F77`；目录审计 16 个文件、0 警告，ZIP 根目录含 `index.html` 与 `icon.png`。
+- Cloudflare Pages 部署：`https://a4964997.huohuo-5ry.pages.dev`；自定义域名 `https://www.shhai.top/tools/chupianba/` 已逐模板复核一屏布局。
 
 ## 2026-10-26 - 单主角模板、品牌图标与发布
 
