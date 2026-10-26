@@ -63,7 +63,7 @@
 - 不支持 HEIC（请先转 JPG）。
 
 ### 预览
-四种比例 × 10 个模板（截图暂未包含第 11 个「立体滚动照片墙」）：
+四种比例 × 11 个模板：
 
 ![ratios](docs/img/ratios_all_templates.jpg)
 

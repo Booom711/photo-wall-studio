@@ -1410,6 +1410,8 @@ REG.push((()=>{
     need(t){const G=geom(),s=new Set();for(let r=0;r<G.rows;r++)cellsOf(G,r,wrap(t),j=>s.add(st.list[j]));if(st.hero>=0)s.add(st.hero);return [...s];},
     drawFrame(c,t){ctx=c;render(wrap(t));},
     info(){return `立体滚动照片墙 · ${st.M} 张 · ${V('rows')} 排 · 无缝循环`;},
+    // 默认匀速不卡点；仅打开「鼓点轻微脉动」且已分析节拍时提示（不说「卡点」）
+    beatNote(){return (S.peaks&&V('pulse'))?' · 鼓点轻微脉动':'';},
     prepMsg:k=>`🧠 正在准备照片墙（缩小图 / 主角抠图，${k}，本机处理）…`,
     async prepare(progress){let n=await sm.prepare(k=>progress&&progress(k+'/'+S.items.length));
       for(let i=0;i<9;i++){T.init(S);if(st.kind!=='pending')break;progress&&progress('抠图 '+(i+1));n++;await SEG.segment(S.items[st.hero]);}T.init(S);return n;},
@@ -1504,7 +1506,7 @@ function buildSettings(){const box=$('tplSettings');box.innerHTML='';
     else row.innerHTML=`<label></label><span class="chk"><input type="checkbox" id="${id}"${v?' checked':''}>${s.label}</span>`;
     const el=row.querySelector('#'+id);
     el.addEventListener('input',()=>{cur.values[s.id]=s.type==='check'?el.checked:(s.type==='range'?+el.value:el.value);if(s.type==='range')row.querySelector('.val').textContent=(+el.value).toFixed(2)+' '+(s.unit||'');
-      if(s.rebuild)rebuild();if(!playing)drawIdle();renderNotices();drawThumbs();});
+      if(s.rebuild)rebuild();else if(S.items.length&&!playing)status(`${cur.info()} · 成片约 ${cur.duration.toFixed(1)} 秒`+beatSuffix());if(!playing)drawIdle();renderNotices();drawThumbs();});
     box.appendChild(row);}
   // 复选框挤在一行
   const checks=[...box.querySelectorAll('.chk')];if(checks.length>1){const r=document.createElement('div');r.className='row';r.innerHTML='<label>选项</label>';checks.forEach(c=>{c.parentNode.remove();r.appendChild(c);});box.appendChild(r);}
@@ -1516,7 +1518,7 @@ function renderNotices(){const box=$('notices');box.innerHTML='';if(demoMode||!S
 let prepRun=null;
 function prepareCur(){const T=cur;if(demoMode||!T.prepare||!S.items.length)return Promise.resolve();if(prepRun&&prepRun.T===T)return prepRun.p;
   const p=(async()=>{const n=await T.prepare(k=>{if(!playing&&T===cur)status(T.prepMsg?T.prepMsg(k):`🧠 正在自动识别人像 / 抠图（第 ${k} 张，本机运行）…`);renderNotices();drawThumbs();});
-    prepRun=null;if(T===cur){drawThumbs();renderNotices();if(n){rebuild();if(!playing)drawIdle();refreshCards();}else if(!playing)status(`${T.info()} · 成片约 ${T.duration.toFixed(1)} 秒`+(S.peaks?' · 已按鼓点卡点':''));}})();
+    prepRun=null;if(T===cur){drawThumbs();renderNotices();if(n){rebuild();if(!playing)drawIdle();refreshCards();}else if(!playing)status(`${T.info()} · 成片约 ${T.duration.toFixed(1)} 秒`+beatSuffix(T));}})();
   prepRun={T,p};return p;}
 function selectTpl(id){const T=REG.find(x=>x.id===id);if(!T)return;const was=playing;stop();cur=T;
   document.querySelectorAll('.tpl').forEach(d=>d.classList.toggle('on',d.dataset.id===id));buildSettings();rebuild();setBtns(S.items.length>0);
@@ -1524,12 +1526,14 @@ function selectTpl(id){const T=REG.find(x=>x.id===id);if(!T)return;const was=pla
 
 /* ================= 时间线 / 预览 / 导出 ================= */
 function seeded(){let s=1234567;return()=>{s=(s*16807)%2147483647;return s/2147483647}}
+// 状态栏「鼓点」文案：默认有节拍就显示「已按鼓点卡点」；模板可设 beatNote:false 关掉，或 beatNote() 返回自定义后缀（含前导「 · 」；空字符串=不显示）
+function beatSuffix(T=cur){if(typeof T.beatNote==='function')return T.beatNote()||'';if(T.beatNote===false)return '';return S.peaks?' · 已按鼓点卡点':'';}
 function rebuild(){const N=S.items.length;if(!N){return;}
   const seq=[...Array(N).keys()];if($('shuf').checked){const r=seeded();for(let i=N-1;i>0;i--){const j=Math.floor(r()*(i+1));[seq[i],seq[j]]=[seq[j],seq[i]];}}
   S.seq=seq;S.peaks=S.audioBuf?loopPeaks(S.audioBuf):null;
   for(const T of REG)T.init(S);
   if(prepRun==null&&cur.prepare)setTimeout(prepareCur,0);renderNotices();
-  status(`${cur.info()} · 成片约 ${cur.duration.toFixed(1)} 秒`+(S.peaks?' · 已按鼓点卡点':''));}
+  status(`${cur.info()} · 成片约 ${cur.duration.toFixed(1)} 秒`+beatSuffix());}
 function needSet(T,t){const s=new Set();for(const d of [0,0.5,1.0])for(const i of T.need(Math.min(T.duration-0.001,t+d)))if(i!=null)s.add(i);return s;}
 async function frameAt(T,t,c=mainCtx){await S.ensure(T.need(Math.min(t,T.duration-0.001)));T.drawFrame(c,t);}
 function drawIdle(){if(!S.items.length){mainCtx.fillStyle='#000';mainCtx.fillRect(0,0,W,H);mainCtx.fillStyle='#666';mainCtx.font=`40px ${FONT_S}`;mainCtx.textAlign='center';mainCtx.fillText('拖入照片后选模板、点「预览」',W/2,H/2);return;}
