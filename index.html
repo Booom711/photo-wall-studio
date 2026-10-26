@@ -15,7 +15,7 @@ button,input,select,textarea{font:inherit}
 button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,.drop:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
 .app-shell{width:100%;min-height:100vh;padding:24px clamp(14px,2.5vw,36px) 44px}
 .topbar{max-width:1380px;margin:0 auto 20px;display:flex;align-items:center;justify-content:space-between;gap:18px}
-.brand{display:flex;align-items:center;gap:12px;min-width:0}.brand-mark{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(145deg,var(--acc),var(--acc2));box-shadow:0 10px 30px #8d43ff42;font-weight:900;font-size:15px;letter-spacing:-1px}.brand-copy{min-width:0}
+.brand{display:flex;align-items:center;gap:12px;min-width:0}.brand-mark{width:38px;height:38px;border-radius:12px;display:block;overflow:hidden;background:#fff;box-shadow:0 10px 30px #8d43ff42}.brand-mark img{display:block;width:100%;height:100%;object-fit:cover}.brand-copy{min-width:0}
 h1{font-size:clamp(19px,2vw,25px);font-weight:750;letter-spacing:-.02em;white-space:nowrap}h1 span{background:linear-gradient(90deg,#fff 0,#f7dff0 52%,#bca8ff 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
 .trust{display:flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid var(--line);border-radius:999px;background:#0f1118aa;color:#c3c7d3;font-size:12px;white-space:nowrap}.trust i{width:7px;height:7px;border-radius:50%;background:var(--ok);box-shadow:0 0 12px #59d397aa}
 .wrap{max-width:1480px;margin:0 auto;display:grid;grid-template-columns:minmax(270px,320px) minmax(390px,1fr) minmax(280px,340px);grid-template-areas:"templates preview settings" "media preview settings" ". actions status";gap:14px;align-items:start}.side{display:contents}.import-card{grid-area:media}.template-card{grid-area:templates}.adjust-card{grid-area:settings;position:sticky;top:20px}.side>.status{grid-area:status;align-self:center}
@@ -83,7 +83,7 @@ button{color:#3c353a;background:#f6efec;border-color:#e4d8d3}button:hover:not(:d
 <body>
 <div class="app-shell">
 <header class="topbar">
-  <div class="brand"><div class="brand-mark">出</div><div class="brand-copy"><h1><span>出片吧</span></h1></div></div>
+  <div class="brand"><div class="brand-mark"><img src="./icon.png" alt="出片吧图标"></div><div class="brand-copy"><h1><span>出片吧</span></h1></div></div>
   <div class="top-actions">
     <div class="trust"><i></i><span>照片仅在本机处理</span></div>
     <div class="btns">
@@ -318,7 +318,7 @@ function deleteSelected(){const doomed=S.items.filter(it=>selectedIds.has(it.id)
     const br=box.getBoundingClientRect();if(e.clientX<br.left+30)box.scrollLeft-=8;if(e.clientX>br.right-30)box.scrollLeft+=8;});
   box.addEventListener('touchmove',e=>{if(st&&st.drag)e.preventDefault();},{passive:false});
   const end=e=>{if(!st)return;clearTimeout(st.lp);const s0=st;st=null;clearDrop();if(s0.drag){thDragging=false;cancelAnimationFrame(raf);raf=0;box.querySelectorAll('.th.drag').forEach(n=>{n.classList.remove('drag');n.style.removeProperty('--drag-x');n.style.removeProperty('--drag-y');n.style.removeProperty('--drag-r');});if(inTrash(e.clientX,e.clientY)){trash.classList.add('confirm');setTimeout(()=>trash.classList.remove('confirm'),320);deleteSelected();}else if(s0.targetId&&!moveSelected(s0.targetId,s0.oldRects))drawThumbs();else if(!s0.targetId)drawThumbs();}
-    else if(!s0.moved&&e.type==='pointerup'){const id=s0.itemId,idx=S.items.findIndex(it=>it.id===id);if(cur.id==='grid'&&!e.shiftKey){S.items.forEach((it,i)=>it.hero=i===idx);selectedIds.clear();lastSelectedId=id;drawThumbs();rebuild();drawIdle();prepareCur();$('imgStat').textContent=`已选择第 ${idx+1} 张作为主角 · 正在检查抠像`;openEditor(idx);return;}if(e.shiftKey&&lastSelectedId!=null){const prev=S.items.findIndex(it=>it.id===lastSelectedId),a=Math.min(prev,idx),b=Math.max(prev,idx);if(prev>=0)for(let i=a;i<=b;i++)selectedIds.add(S.items[i].id);}else if(selectedIds.has(id))selectedIds.delete(id);else selectedIds.add(id);lastSelectedId=id;drawThumbs();$('imgStat').textContent=selectedIds.size?`已选 ${selectedIds.size} 张 · 拖到目标图片上换位，或拖到下方删除`:`已载入 ${S.items.length} 张照片 · 点击可多选，拖到目标图片上即可换位`;}};
+    else if(!s0.moved&&e.type==='pointerup'){const id=s0.itemId,idx=S.items.findIndex(it=>it.id===id);if(cur.singleHero&&!e.shiftKey){S.items.forEach((it,i)=>it.hero=i===idx);selectedIds.clear();lastSelectedId=id;drawThumbs();rebuild();drawIdle();prepareCur();$('imgStat').textContent=`已选择第 ${idx+1} 张作为唯一主角 · 正在检查抠像`;openEditor(idx);return;}if(e.shiftKey&&lastSelectedId!=null){const prev=S.items.findIndex(it=>it.id===lastSelectedId),a=Math.min(prev,idx),b=Math.max(prev,idx);if(prev>=0)for(let i=a;i<=b;i++)selectedIds.add(S.items[i].id);}else if(selectedIds.has(id))selectedIds.delete(id);else selectedIds.add(id);lastSelectedId=id;drawThumbs();$('imgStat').textContent=selectedIds.size?`已选 ${selectedIds.size} 张 · 拖到目标图片上换位，或拖到下方删除`:`已载入 ${S.items.length} 张照片 · 点击可多选，拖到目标图片上即可换位`;}};
   box.addEventListener('pointerup',end);box.addEventListener('pointercancel',end);
   document.addEventListener('keydown',e=>{const tag=e.target&&e.target.tagName;if((e.key==='Delete'||e.key==='Backspace')&&selectedIds.size&&!/INPUT|TEXTAREA|SELECT/.test(tag)){e.preventDefault();deleteSelected();}else if(e.key==='Escape'&&selectedIds.size){selectedIds.clear();drawThumbs();}});
 })();
@@ -567,39 +567,33 @@ REG.push((()=>{
       {id:'hold',label:'出框停留',type:'range',min:0.6,max:2.5,step:0.1,value:1.0,unit:'秒',rebuild:1},
       {id:'heroScale',label:'主角大小',type:'range',min:0.55,max:1.45,step:0.05,value:1,unit:'倍'},
       {id:'outline',label:'白色描边',type:'check',value:true}],
-    note:'选择模板后，点一张照片设为主角并检查抠像。直接在预览里拖动主角，双击可恢复默认位置；最终画面只保留九宫格和抠像人像。',
+    note:'九宫格只使用当前排序的前 9 张照片。点一张照片设为唯一主角并检查抠像；可在预览里拖动位置，双击恢复默认位置。',
     needs:'需人像',
-    init(){mkL();const N=S.seq.length,G=Math.max(1,Math.ceil(N/9)),groups=[];
-      for(let g=0;g<G;g++){const ids=[];for(let k=0;k<9;k++)ids.push(S.seq[(g*9+k)%N]);
-        // 主角优先级：★ 手动指定 > 手涂/透明PNG > 已自动识别出人像（面积大者）> 未识别的按肤色粗分；识别过确认无人的排到最后
-        const tried=ids.filter(i=>S.items[i].seg&&!S.items[i].seg.person).length,CAP=9; // 最坏情况整组都识别一遍（每张约 0.3 秒）
-        const score=i=>{const it=S.items[i];if(it.hero)return 1e9;if(it.mask||it.cut)return 1e8;if(it.seg)return it.seg.person?1e6+it.seg.area:-1+it.skin*0.01;return it.skin;};
-        let hi=0,best=-Infinity;ids.forEach((i,k)=>{const v=score(i);if(v>best){best=v;hi=k;}});
-        [ids[4],ids[hi]]=[ids[hi],ids[4]];const h=S.items[ids[4]];
-        const kind=h.mask?'brush':h.cut?'png':h.seg?(h.seg.person?'auto':'none'):(tried>=CAP?'none':'pending');
-        groups.push({ids,kind});}
+    singleHero:1,
+    init(){mkL();const N=S.seq.length,used=Math.min(9,N),groups=[],star=S.seq.find(i=>S.items[i].hero),hero=star!=null?star:S.seq[0],h=S.items[hero];
+      const kind=h.mask?'brush':h.cut?'cut':h.seg?(h.seg.person?'auto':'none'):'pending';
+      const ids=[];for(let k=0;k<9;k++)ids.push(S.seq[k%used]);groups.push({ids,hero,kind});
       const dur=V('dur'),hold=V('hold'),flashes=[];let t=INTRO;
       for(const g of groups){g.t0=t;const c=S.cuts(t+0.05,8,dur);g.cells=c.times;const last=c.times[8];
         g.pop=S.nextStrong(last+dur*0.8,0.5)||last+dur;flashes.push(g.pop);g.t1=g.pop+POP+hold;t=g.t1+SWAP;}
-      const end=groups[groups.length-1].t1;st={groups,flashes,end,total:end+OUTRO,N};return st;},
+      const end=groups[0].t1;st={groups,flashes,end,total:end+OUTRO,N,used,hero,kind};return st;},
         keyTimes(){const o=[];for(const g of st.groups){o.push({t:g.cells[5]+0.12,w:0.6});o.push({t:g.cells[8]+0.15,w:1});o.push({t:g.pop+POP+0.3,w:3,pop:1});o.push({t:g.t1-0.12,w:1.2,pop:1});}o.push({t:st.total-0.5,w:2.5,end:1});return o;},
     get duration(){return st?st.total:0},
     get idleT(){const g=st.groups[0];return Math.min(g.t1-0.05,g.pop+POP+0.3);},
     drag(dx,dy){heroPos.x=clamp(heroPos.x+dx/W,-0.08,1.08);heroPos.y=clamp(heroPos.y+dy/H,0.32,1.14);},
     dragEnd(){},dragReset(){heroPos={x:0.66,y:0.98};},
-    need(t){const {i}=groupAt(Math.min(t,st.total-0.001)),o=[];for(const j of [i,i+1])if(st.groups[j])o.push(...st.groups[j].ids);return o;},
+    need(t){const {i}=groupAt(Math.min(t,st.total-0.001)),o=[st.hero];for(const j of [i,i+1])if(st.groups[j])o.push(...st.groups[j].ids);return [...new Set(o)];},
     drawFrame(c,t){ctx=c;render(Math.min(t,st.total-0.001));},
-    info(){return `九宫格主角 · ${st.N} 张 · ${st.groups.length} 组`;},
-    pops(){return st.groups.map(g=>g.pop);},heroes(){return st.groups.map(g=>g.ids[4]);},kinds(){return st.groups.map(g=>g.kind);},
-    // 渲染前的准备：只对“被选为主角”的照片跑抠图；没识别到人就换组里下一张候选（逐张试，直到找到有人的或整组都试过）
-    async prepare(progress){let n=0;for(;;){T.init(S);const g=st.groups.find(g=>g.kind==='pending');if(!g)break;
-        progress&&progress(++n);await SEG.segment(S.items[g.ids[4]]);}T.init(S);return n;},
-    notices(){const out=[],bad=[],pend=st.groups.filter(g=>g.kind==='pending').length;st.groups.forEach((g,i)=>{if(g.kind==='none')bad.push(i+1);});
-      if(!S.items.some(it=>it.hero))out.push({lv:'info',text:'请点击下方任意一张人物照片选择主角；会立即打开抠像检查，可自动识别，也可以手动补涂。'});
-      if(pend)out.push({lv:'info',text:`正在自动识别人像并抠图（还剩 ${pend} 组），完成后预览会自动更新。`});
-      if(bad.length)out.push({lv:'warn',text:`第 ${bad.join('、')} 组的 9 张里没识别到人物，中间这张只能用椭圆贴纸效果。想要人物出框：把一张有人的照片拖进这组，或点这组里有人的照片「★ 设为主角」，也可以用笔刷手动涂出轮廓。`});
-      if(!out.length)out.push({lv:'ok',text:`${st.groups.length} 组都已自动找到人物并抠好图（缩略图上标 ✂ 的就是主角）。`});return out;},
-    badges(){const m=new Map(),L={auto:'✂ 主角',brush:'✎ 主角',png:'PNG 主角',none:'⚠ 无人像',pending:'… 识别中'};st.groups.forEach(g=>{if(!m.has(g.ids[4]))m.set(g.ids[4],L[g.kind]);});return m;}};
+    info(){return `九宫格主角 · 使用前 ${st.used} 张`;},
+    pops(){return st.groups.map(g=>g.pop);},heroes(){return [st.hero];},kinds(){return [st.kind];},
+    async prepare(progress){if(st.kind!=='pending')return 0;progress&&progress(1);await SEG.segment(S.items[st.hero]);T.init(S);return 1;},
+    notices(){const out=[];
+      if(!S.items.some(it=>it.hero))out.push({lv:'info',text:'当前默认第一张为主角。点击下方任意一张人物照片即可更换，并进入抠像检查。'});
+      if(st.N>9)out.push({lv:'info',icon:'ℹ️ ',text:`九宫格只使用前 9 张；后面的 ${st.N-9} 张不会进入这个模板。可拖动缩略图调整前九张顺序。`});
+      if(st.kind==='pending')out.push({lv:'info',text:'正在自动识别唯一主角并抠图，完成后预览会自动更新。'});
+      if(st.kind==='none')out.push({lv:'warn',text:'当前主角没有识别到人物。请更换主角，或在抠像窗口中手动涂出人物轮廓。'});
+      if(!out.length)out.push({lv:'ok',text:'唯一主角已经抠好。可直接在预览中拖动位置，并用“主角大小”调整尺寸。'});return out;},
+    badges(){const m=new Map();m.set(st.hero,st.kind==='pending'?'… 识别中':st.kind==='none'?'⚠ 需抠像':'★ 主角');return m;}};
   function groupAt(t){const gs=st.groups;for(let i=0;i<gs.length;i++)if(t<gs[i].t1+SWAP||i===gs.length-1)return{g:gs[i],i};}
   function autoMask(w,h){const c=document.createElement('canvas');c.width=w;c.height=h;const g=c.getContext('2d');g.translate(w*0.5,h*0.47);g.scale(w*0.36,h*0.5);
     const gr=g.createRadialGradient(0,0,0,0,0,1);gr.addColorStop(0,'#fff');gr.addColorStop(0.82,'#fff');gr.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=gr;g.beginPath();g.arc(0,0,1,0,Math.PI*2);g.fill();return c;}
@@ -636,7 +630,7 @@ REG.push((()=>{
       if(S.items[idx].cut){ax.clearRect(0,0,amb.width,amb.height);ax.drawImage(b,0,0,18,32);ctx.fillStyle='#cfd6dd';ctx.fillRect(R.x,R.y,R.s,R.s);ctx.drawImage(amb,R.x,R.y,R.s,R.s);}
       let cr=coverRect(b,R);if(k===4&&popP>0){const k2=1+0.42*popP,axx=R.x+R.s/2,ayy=R.y+R.s;cr={x:axx+(cr.x-axx)*k2,y:ayy+(cr.y-ayy)*k2,w:cr.w*k2,h:cr.h*k2};}
       ctx.drawImage(b,cr.x,cr.y,cr.w,cr.h);if(ap<1){ctx.fillStyle=`rgba(255,255,255,${0.5*(1-ap)})`;ctx.fillRect(R.x,R.y,R.s,R.s);}ctx.restore();}}
-  function subjectLayer(g,popP,float,fade){if(popP<=0)return;const idx=g.ids[4],Sb=getSub(idx);if(!Sb)return;const B=Sb.box,reveal=0.72+0.28*clamp(popP);
+  function subjectLayer(g,popP,float,fade){if(popP<=0)return;const idx=g.hero,Sb=getSub(idx);if(!Sb)return;const B=Sb.box,reveal=0.72+0.28*clamp(popP);
     let hh=(W>H?H*0.82:H*0.86)*V('heroScale')*reveal,ww=hh*B.w/B.h;if(ww>W*1.15){const k=W*1.15/ww;ww*=k;hh*=k;}
     const x=heroPos.x*W-ww/2,y=heroPos.y*H-hh+float;ctx.save();ctx.globalAlpha=1-fade;
     ctx.save();ctx.shadowColor=`rgba(0,0,0,${0.34*clamp(popP)})`;ctx.shadowBlur=Math.max(20,H*0.024);ctx.shadowOffsetY=Math.max(12,H*0.015);ctx.drawImage(Sb.sil,B.x,B.y,B.w,B.h,x,y,ww,hh);ctx.restore();
@@ -730,7 +724,6 @@ REG.push((()=>{
       if(ctx.createConicGradient){const cg=ctx.createConicGradient(rot*0.3+0.6,0,0);cg.addColorStop(0,'rgba(255,255,255,0)');cg.addColorStop(0.08,'rgba(255,255,255,.10)');cg.addColorStop(0.16,'rgba(255,255,255,0)');cg.addColorStop(0.5,'rgba(255,255,255,0)');cg.addColorStop(0.58,'rgba(255,255,255,.08)');cg.addColorStop(0.66,'rgba(255,255,255,0)');cg.addColorStop(1,'rgba(255,255,255,0)');ctx.fillStyle=cg;ctx.beginPath();ctx.arc(0,0,R-4,0,Math.PI*2);ctx.arc(0,0,280,0,Math.PI*2,true);ctx.fill();}
       ctx.strokeStyle=`rgba(${A},.9)`;ctx.lineWidth=6;ctx.beginPath();ctx.arc(0,0,281,0,Math.PI*2);ctx.stroke();ctx.restore();
       const lr=275*pulse,lrot=Math.max(0,t-ck)*0.45,prot=k>0?Math.max(0,ck-st.cuts[k-1])*0.45+(t-ck)*0.45:0;if(pb&&u<1)circPhoto(pb,cx,cy,lr,prot,1-0.08*ease(u),1-ease(u));circPhoto(b,cx,cy,lr,lrot,u<1?0.85+0.15*easeOutBack(u):1,u<1?ease(clamp(u*1.6)):1);
-      ctx.fillStyle='#0d0d0f';ctx.beginPath();ctx.arc(cx,cy,22,0,Math.PI*2);ctx.fill();ctx.strokeStyle='rgba(255,255,255,.5)';ctx.lineWidth=3;ctx.beginPath();ctx.arc(cx,cy,22,0,Math.PI*2);ctx.stroke();
       if(V('arm')){const rest=-0.5*(1-ease(clamp((t-0.15)/0.6)))-0.012*Math.sin(t*2.1);const px=cx+400,py=cy-470,vx=-185,vy=255,L=Math.hypot(vx,vy),a0=Math.atan2(vy,vx);
         ctx.save();ctx.translate(px,py);ctx.rotate(a0+rest);ctx.shadowColor='rgba(0,0,0,.5)';ctx.shadowBlur=20;ctx.shadowOffsetY=10;
         ctx.strokeStyle='#d9d9de';ctx.lineWidth=15;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(-50,0);ctx.lineTo(L-40,0);ctx.stroke();
@@ -1410,6 +1403,7 @@ REG.push((()=>{
   let ctx,st=null;const V=id=>T.values[id],h01=k=>hashI(k)/4294967296,MINT=8;
   const sm=smallStore(560,()=>{if(cur===T&&!playing)drawIdle();refreshCards();});
   const heroC=new Map();
+  let heroPos={x:0.24,y:1.015};
   const lum=hex=>{const n=parseInt(String(hex).slice(1),16);return ((n>>16&255)*0.299+(n>>8&255)*0.587+(n&255)*0.114)/255;};
   const T={id:'scroll3d',name:'立体滚动照片墙',desc:'折叠透视长条匀速滚动',values:{},
     settings:[{id:'rows',label:'排数',type:'select',value:'1',options:[['1','1 排（教程同款）'],['2','2 排（相邻反向滚动）'],['3','3 排（相邻反向滚动）']],rebuild:1},
@@ -1420,16 +1414,14 @@ REG.push((()=>{
       {id:'gap',label:'照片间距',type:'range',min:0,max:10,step:0.5,value:2,unit:'%',rebuild:1},
       {id:'aspect',label:'照片比例',type:'select',value:'auto',options:[['auto','按原图（横竖混排）'],['16:9','统一 16:9'],['3:2','统一 3:2'],['4:3','统一 4:3'],['1:1','统一 1:1']],rebuild:1},
       {id:'bg',label:'背景',type:'select',value:'#000000',options:[['#000000','黑色'],['#141519','深灰'],['#0b1226','深蓝'],['#24180f','暖棕'],['#f3f1ec','米白']]},
-      {id:'hero',label:'前景主角',type:'select',value:'auto',options:[['auto','自动（★ 主角或第一张，有人像就抠图）'],['card','相框卡片'],['off','不要']],rebuild:1},
+      {id:'hero',label:'前景主角',type:'select',value:'on',options:[['on','显示'],['off','不显示']],rebuild:1},
+      {id:'heroScale',label:'主角大小',type:'range',min:0.55,max:1.45,step:0.05,value:1,unit:'倍'},
       {id:'flip',label:'左右镜像',type:'check',value:false},{id:'stars',label:'星点',type:'check',value:true},
       {id:'showTitle',label:'左上角标题',type:'check',value:true},{id:'pulse',label:'鼓点轻微脉动',type:'check',value:false}],
-    note:'照片连成长条贴在一面折叠的墙上（左远右近），匀速滚动、首尾无缝循环，导出的视频可以直接循环播放（不卡点）。前景主角：★ 主角优先，否则自动在前几张里找有人的照片抠图并加白色柔光，找不到就用相框卡片；主角不再出现在长条里。',
+    note:'点击下方任意一张人物照片即可选择或更换主角，并进入抠像检查。直接在预览里拖动主角，双击恢复默认位置；用“主角大小”调整尺寸。',
+    needs:'需人像',singleHero:1,
     init(){const N=S.seq.length,mode=V('hero');let hero=-1,kind='off';
-      if(mode!=='off'&&N){const star=S.seq.find(i=>S.items[i].hero);
-        if(mode==='card'){hero=star!=null?star:S.seq[0];kind='card';}
-        else{// 主角：★ 优先，否则按顺序找前 8 张里第一张有人像的（手涂 / 透明 PNG / 自动识别出人像）；还没识别的先识别；都没人就用第一张做相框卡片
-          const pool=star!=null?[star]:S.seq.slice(0,Math.min(N,8));hero=pool[0];kind='card';
-          for(const i of pool){const it=S.items[i];if(it.mask||it.cut||(it.seg&&it.seg.person)){hero=i;kind='cut';break;}if(!it.seg){hero=i;kind='pending';break;}}}}
+      if(mode!=='off'&&N){const star=S.seq.find(i=>S.items[i].hero);hero=star!=null?star:S.seq[0];const it=S.items[hero];kind=it.mask||it.cut||it.seg&&it.seg.person?'cut':it.seg?'card':'pending';}
       const list=(hero>=0&&N>=4)?S.seq.filter(i=>i!==hero):S.seq.slice(),M=list.length;
       const fix={'16:9':16/9,'3:2':1.5,'4:3':4/3,'1:1':1}[V('aspect')],gp=V('gap')/100;
       const ar=list.map(i=>fix||clamp(S.items[i].w/S.items[i].h,0.7,1.8)),cum=[];let L=0;for(const a of ar){cum.push(L);L+=a+gp;}
@@ -1439,6 +1431,8 @@ REG.push((()=>{
     keyTimes(){const o=[],n=Math.min(12,Math.max(3,st.M));for(let i=0;i<n;i++)o.push({t:(i+0.5)*st.P/n,w:1});return o;},
     get duration(){return st?st.total:0},
     get idleT(){return Math.min(st.total-0.05,1.3);},
+    drag(dx,dy){heroPos.x=clamp(heroPos.x+dx/W,-0.1,1.1);heroPos.y=clamp(heroPos.y+dy/H,0.35,1.2);},
+    dragEnd(){},dragReset(){heroPos={x:0.24,y:1.015};},
     need(t){const G=geom(),s=new Set();for(let r=0;r<G.rows;r++)cellsOf(G,r,wrap(t),j=>s.add(st.list[j]));if(st.hero>=0)s.add(st.hero);return [...s];},
     drawFrame(c,t){ctx=c;render(wrap(t));},
     info(){return `立体滚动照片墙 · ${st.M} 张 · ${V('rows')} 排 · 无缝循环`;},
@@ -1446,12 +1440,13 @@ REG.push((()=>{
     beatNote(){return (S.peaks&&V('pulse'))?' · 鼓点轻微脉动':'';},
     prepMsg:k=>`🧠 正在准备照片墙（缩小图 / 主角抠图，${k}，本机处理）…`,
     async prepare(progress){let n=await sm.prepare(k=>progress&&progress(k+'/'+S.items.length));
-      for(let i=0;i<9;i++){T.init(S);if(st.kind!=='pending')break;progress&&progress('抠图 '+(i+1));n++;await SEG.segment(S.items[st.hero]);}T.init(S);return n;},
+      if(st.kind==='pending'){progress&&progress('抠图主角');n++;await SEG.segment(S.items[st.hero]);}T.init(S);return n;},
     notices(){const o=[];if(!st)return o;
       if(st.kind==='pending')o.push({lv:'info',text:'正在自动识别前景主角的人像并抠图（本机运行），完成后预览会自动更新。'});
-      if(V('hero')==='auto'&&st.kind==='card')o.push({lv:'warn',text:`没在前几张里识别到人像，前景主角先用相框卡片（第 ${st.hero+1} 张）。想要抠图主角：点一张有人物的照片「★ 设为主角」，或用笔刷涂出轮廓 / 上传透明 PNG。`});
+      if(V('hero')!=='off'&&!S.items.some(it=>it.hero))o.push({lv:'info',text:'当前默认第一张为主角。点击下方任意一张人物照片即可更换主角。'});
+      if(st.kind==='card')o.push({lv:'warn',text:'当前主角没有识别到人物，暂时显示为相框。请更换主角，或在抠像窗口中手动涂出人物轮廓。'});
       if(st.M<6)o.push({lv:'info',icon:'ℹ️ ',text:`长条里只有 ${st.M} 张，会循环重复；8 张以上更好看。`});return o;},
-    badges(){const m=new Map();if(st.hero>=0){const it=S.items[st.hero];m.set(st.hero,st.kind==='pending'?'… 识别中':st.kind==='card'?'▣ 主角':it.mask?'✎ 主角':it.cut?'PNG 主角':'✂ 主角');}return m;}};
+    badges(){const m=new Map();if(st.hero>=0)m.set(st.hero,st.kind==='pending'?'… 识别中':st.kind==='card'?'⚠ 需抠像':'★ 主角');return m;}};
   T.invalidate=i=>{const it=S.items[i];if(it)for(const k of [...heroC.keys()])if(k.startsWith(it.id+'|'))heroC.delete(k);};
   const wrap=t=>{const P=st.total;return ((t%P)+P)%P;};
   // 几何：相机在原点看 +z，焦距 f=W；近墙 z=1，远墙 z=k；斜面从 A(x1,k) 到 B(x2,1)；弧长 s=0 在 A，s=Lr 在 B
@@ -1500,11 +1495,11 @@ REG.push((()=>{
     const sil=document.createElement('canvas');sil.width=c.width;sil.height=c.height;const sg=sil.getContext('2d');sg.drawImage(sub,bx,by,bw,bh,pad,pad,bw,bh);sg.globalCompositeOperation='source-in';sg.fillStyle='#fff';sg.fillRect(0,0,c.width,c.height);
     if('filter' in cg){cg.filter=`blur(${Math.max(3,pad*0.42)}px)`;cg.drawImage(sil,0,0);cg.drawImage(sil,0,0);cg.filter='none';}else{cg.shadowColor='#fff';cg.shadowBlur=pad*0.8;cg.drawImage(sil,0,0);cg.shadowBlur=0;}
     cg.drawImage(sub,bx,by,bw,bh,pad,pad,bw,bh);const o={c,pad,bw,bh,bottom:y1>=ph-3};heroC.clear();heroC.set(key,o);return o;}
-  function drawHero(G,fl){if(st.hero<0)return;/* 还在识别人像（或示例模式不跑抠图）时先用相框卡片 */const land=W>H,top=G.cy-2.2*G.block/(2*1.9);
-    if(st.kind==='cut'){const A=heroArt(st.hero);if(A){const bot=H*1.015;let hh=land?bot-top:Math.min(bot-top,H*0.64),ww=hh*A.bw/A.bh;const mw=land?0.5*W:0.85*W;if(ww>mw){ww=mw;hh=ww*A.bh/A.bw;}
-        let x=Math.max(G.X1-0.08*W,ww*0.42);if(fl)x=W-x;const s=hh/A.bh;ctx.drawImage(A.c,x-ww/2-A.pad*s,bot-hh-A.pad*s,A.c.width*s,A.c.height*s);return;}}
-    const b=S.get(st.hero)||sm.get(st.hero);if(!b)return;const ar=clamp(b.width/b.height,0.75,1.5),ch=land?H*0.5:Math.min(H*0.3,W*0.7/ar),cw=ch*ar,bd=Math.round(ch*0.035);
-    let x=Math.max(G.X1-0.04*W,cw/2+bd+0.05*W);if(fl)x=W-x;const y=G.cy+(land?0.12*H:0.2*G.block);
+  function drawHero(G,fl){if(st.hero<0)return;/* 识别中或没有轮廓时先用相框，选定主角不会自动换人 */const land=W>H,top=G.cy-2.2*G.block/(2*1.9),bot=heroPos.y*H,scale=V('heroScale');
+    if(st.kind==='cut'){const A=heroArt(st.hero);if(A){let hh=(land?bot-top:Math.min(bot-top,H*0.64))*scale,ww=hh*A.bw/A.bh;const mw=(land?0.5*W:0.85*W)*scale;if(ww>mw){ww=mw;hh=ww*A.bh/A.bw;}
+        let x=heroPos.x*W;if(fl)x=W-x;const s=hh/A.bh;ctx.drawImage(A.c,x-ww/2-A.pad*s,bot-hh-A.pad*s,A.c.width*s,A.c.height*s);return;}}
+    const b=S.get(st.hero)||sm.get(st.hero);if(!b)return;const ar=clamp(b.width/b.height,0.75,1.5),ch=(land?H*0.5:Math.min(H*0.3,W*0.7/ar))*scale,cw=ch*ar,bd=Math.round(ch*0.035);
+    let x=heroPos.x*W;if(fl)x=W-x;const y=bot-ch/2;
     ctx.save();ctx.translate(x,y);ctx.rotate((fl?3:-3)*Math.PI/180);ctx.shadowColor='rgba(0,0,0,.6)';ctx.shadowBlur=44;ctx.shadowOffsetY=18;ctx.fillStyle='#fff';ctx.fillRect(-cw/2-bd,-ch/2-bd,cw+2*bd,ch+2*bd);
     ctx.shadowColor='transparent';ctx.shadowBlur=0;ctx.shadowOffsetY=0;cover(ctx,b,-cw/2,-ch/2,cw,ch);ctx.restore();}
   function drawTitle(fl,dark){const txt=S.title();if(!V('showTitle')||!txt)return;const land=W>H,fs=Math.round(Math.min(W,H)*(land?0.05:0.058));
@@ -1629,7 +1624,7 @@ ew.addEventListener('pointerdown',e=>{painting=true;ew.setPointerCapture(e.point
 ew.addEventListener('pointermove',e=>{if(painting)paintAt(e);});ew.addEventListener('pointerup',()=>painting=false);ew.addEventListener('pointercancel',()=>painting=false);
 $('edClear').onclick=()=>{edShowMask(null);edDirty=true;};
 $('edAutoCut').onclick=()=>{const it=S.items[edIdx];it.mask=null;edDirty=false;edAuto();};
-$('edHero').onclick=()=>{const it=S.items[edIdx],next=!it.hero;if(cur.id==='grid'&&next)S.items.forEach(x=>x.hero=false);it.hero=next;$('edHero').textContent=it.hero?'★ 取消主角':'★ 设为主角';};
+$('edHero').onclick=()=>{const it=S.items[edIdx],next=!it.hero;if(cur.singleHero&&next)S.items.forEach(x=>x.hero=false);it.hero=next;$('edHero').textContent=it.hero?'★ 取消主角':'★ 设为主角';};
 $('edDone').onclick=()=>{const it=S.items[edIdx],cm=$('edMask');
   if(edDirty){const d=cm.getContext('2d').getImageData(0,0,cm.width,cm.height).data;let n=false;for(let i=3;i<d.length;i+=16)if(d[i]>0){n=true;break;}
     if(n){const m=document.createElement('canvas');m.width=cm.width;m.height=cm.height;const g=m.getContext('2d');g.drawImage(cm,0,0);g.globalCompositeOperation='source-in';g.fillStyle='#fff';g.fillRect(0,0,m.width,m.height);it.mask=m;}else it.mask=null;}
@@ -1764,7 +1759,7 @@ window.__studio={S,REG,SEG,get cur(){return cur.id},get ready(){return S.items.l
   info(){return{id:cur.id,total:cur.duration,stat:$('stat').textContent};},
   paint(i,strokes,hero){const it=S.items[i];const m=document.createElement('canvas');m.width=it.w;m.height=it.h;const g=m.getContext('2d');g.fillStyle='#fff';
     for(const [x,y,r] of strokes){g.beginPath();g.arc(x*it.w,y*it.h,r*it.w,0,Math.PI*2);g.fill();}it.mask=m;if(hero)it.hero=true;REG.forEach(T=>T.invalidate&&T.invalidate(i));drawThumbs();rebuild();},
-  hero(i,v=true){S.items[i].hero=v;drawThumbs();rebuild();},
+  hero(i,v=true){if(v&&cur.singleHero)S.items.forEach(x=>x.hero=false);S.items[i].hero=v;drawThumbs();rebuild();},
   kfPick:(n)=>kfPick(cur,n),setRatio,get ratio(){return RATIO},makeZip,openEditor,gridPops(){const T=REG.find(x=>x.id==='grid');return T.pops();},
   async renderAt(t){if(cur.prepare)await prepareCur();const ks=needSet(cur,Math.min(t,cur.duration-0.001));await S.ensure([...ks]);S.keep(ks);await S.ensure([...ks]);cur.drawFrame(mainCtx,t);return cv.toDataURL('image/jpeg',0.9);}};
 })();
