@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>照片墙工作室 · 一次导入，多种模板</title>
+<title>出片吧 · 照片与视频创作工具</title>
+<link rel="icon" href="./icon.png">
 <style>
 :root{--bg:#07080d;--panel:#10121a;--panel2:#151824;--line:#262a38;--line2:#34394b;--text:#f7f6fb;--sub:#9399aa;--acc:#f45f8e;--acc2:#8357ff;--cyan:#61d8ff;--ok:#59d397}
 *{box-sizing:border-box;margin:0;padding:0}
@@ -82,7 +83,7 @@ button{color:#3c353a;background:#f6efec;border-color:#e4d8d3}button:hover:not(:d
 <body>
 <div class="app-shell">
 <header class="topbar">
-  <div class="brand"><div class="brand-mark">PWS</div><div class="brand-copy"><h1><span>照片墙工作室</span></h1></div></div>
+  <div class="brand"><div class="brand-mark">出</div><div class="brand-copy"><h1><span>出片吧</span></h1></div></div>
   <div class="top-actions">
     <div class="trust"><i></i><span>照片仅在本机处理</span></div>
     <div class="btns">
@@ -155,7 +156,7 @@ button{color:#3c353a;background:#f6efec;border-color:#e4d8d3}button:hover:not(:d
   <div class="status" id="kfStat">全部在本机生成：按当前画面比例的原尺寸，不是实时录制，几秒就好。</div>
 </div></div>
 <div id="ed"><div class="box">
-  <div style="font-size:14px;font-weight:600">人物轮廓（用于「九宫格出框」）：默认自动抠图，可用笔刷补涂 / 擦除</div>
+  <div style="font-size:14px;font-weight:600">选择主角并检查抠像：绿色区域会保留，可用笔刷补涂 / 擦除</div>
   <div id="edWrap"><canvas id="edImg"></canvas><canvas id="edMask"></canvas></div>
   <div class="row"><label style="min-width:auto">笔刷</label><input type="range" id="brush" min="8" max="120" value="40" style="max-width:160px">
     <span class="chk"><input type="radio" name="bm" id="bmPaint" checked>涂抹</span><span class="chk"><input type="radio" name="bm" id="bmErase">擦除</span></div>
@@ -318,7 +319,7 @@ function deleteSelected(){const doomed=S.items.filter(it=>selectedIds.has(it.id)
     const br=box.getBoundingClientRect();if(e.clientX<br.left+30)box.scrollLeft-=8;if(e.clientX>br.right-30)box.scrollLeft+=8;});
   box.addEventListener('touchmove',e=>{if(st&&st.drag)e.preventDefault();},{passive:false});
   const end=e=>{if(!st)return;clearTimeout(st.lp);const s0=st;st=null;clearDrop();if(s0.drag){thDragging=false;cancelAnimationFrame(raf);raf=0;box.querySelectorAll('.th.drag').forEach(n=>{n.classList.remove('drag');n.style.removeProperty('--drag-x');n.style.removeProperty('--drag-y');n.style.removeProperty('--drag-r');});if(inTrash(e.clientX,e.clientY)){trash.classList.add('confirm');setTimeout(()=>trash.classList.remove('confirm'),320);deleteSelected();}else if(s0.targetId&&!moveSelected(s0.targetId,s0.oldRects))drawThumbs();else if(!s0.targetId)drawThumbs();}
-    else if(!s0.moved&&e.type==='pointerup'){const id=s0.itemId,idx=S.items.findIndex(it=>it.id===id);if(e.shiftKey&&lastSelectedId!=null){const prev=S.items.findIndex(it=>it.id===lastSelectedId),a=Math.min(prev,idx),b=Math.max(prev,idx);if(prev>=0)for(let i=a;i<=b;i++)selectedIds.add(S.items[i].id);}else if(selectedIds.has(id))selectedIds.delete(id);else selectedIds.add(id);lastSelectedId=id;drawThumbs();$('imgStat').textContent=selectedIds.size?`已选 ${selectedIds.size} 张 · 拖到目标图片上换位，或拖到下方删除`:`已载入 ${S.items.length} 张照片 · 点击可多选，拖到目标图片上即可换位`;}};
+    else if(!s0.moved&&e.type==='pointerup'){const id=s0.itemId,idx=S.items.findIndex(it=>it.id===id);if(cur.id==='grid'&&!e.shiftKey){S.items.forEach((it,i)=>it.hero=i===idx);selectedIds.clear();lastSelectedId=id;drawThumbs();rebuild();drawIdle();prepareCur();$('imgStat').textContent=`已选择第 ${idx+1} 张作为主角 · 正在检查抠像`;openEditor(idx);return;}if(e.shiftKey&&lastSelectedId!=null){const prev=S.items.findIndex(it=>it.id===lastSelectedId),a=Math.min(prev,idx),b=Math.max(prev,idx);if(prev>=0)for(let i=a;i<=b;i++)selectedIds.add(S.items[i].id);}else if(selectedIds.has(id))selectedIds.delete(id);else selectedIds.add(id);lastSelectedId=id;drawThumbs();$('imgStat').textContent=selectedIds.size?`已选 ${selectedIds.size} 张 · 拖到目标图片上换位，或拖到下方删除`:`已载入 ${S.items.length} 张照片 · 点击可多选，拖到目标图片上即可换位`;}};
   box.addEventListener('pointerup',end);box.addEventListener('pointercancel',end);
   document.addEventListener('keydown',e=>{const tag=e.target&&e.target.tagName;if((e.key==='Delete'||e.key==='Backspace')&&selectedIds.size&&!/INPUT|TEXTAREA|SELECT/.test(tag)){e.preventDefault();deleteSelected();}else if(e.key==='Escape'&&selectedIds.size){selectedIds.clear();drawThumbs();}});
 })();
@@ -553,22 +554,21 @@ REG.push((()=>{
       titleBig(ctx,ease(clamp((lt-0.3)/0.6)),H*0.78,82,0,sub,'#fff8ee','rgba(255,210,160,.85)',FONT_M);const fo=Math.max(0,(lt-(OUTRO-0.8))/0.8);if(fo>0){ctx.fillStyle=`rgba(0,0,0,${Math.min(1,fo)})`;ctx.fillRect(0,0,W,H);}}}
   return T;})());
 
-/* ---------- 模板 3：九宫格人物出框 ---------- */
+/* ---------- 模板 3：九宫格主角 ---------- */
 REG.push((()=>{
-  const INTRO=1.0,OUTRO=1.4,POP=0.75,SWAP=0.32;let ctx,st=null;const subCache=new Map();onEvictFns.push(i=>subCache.delete(i));
+  const INTRO=0.45,OUTRO=0.6,POP=0.75,SWAP=0.32;let ctx,st=null;const subCache=new Map();onEvictFns.push(i=>subCache.delete(i));
   const amb=ambC(18);const ax=amb.getContext('2d');const easeOutBack=backE(1.5);
-  let L={};function mkL(){if(W>H){const gw=Math.round(Math.min(H-170,W*0.56)),gx=W-gw-70,gy=Math.round((H-gw)/2),bw=gx-50,coverH=Math.round(H*0.42);
-      L={land:1,coverH,bw,avX:48,avY:coverH+40,av:104,nameX:178,nameY:coverH+70,capX:48,capY:coverH+204,capW:bw-60,gx,gy,gw,gap:10,by:coverH+300,lx:48,lw:bw-48,rx:bw};}
-    else{const coverH=H>=1800?560:300,gy=coverH+210,gw=Math.round(Math.min(W-178-56,H-gy-230));
-      L={coverH,bw:W,avX:48,avY:coverH+50,av:104,nameX:178,nameY:coverH+80,capX:178,capY:coverH+144,capW:W-178-56,gx:178,gy,gw,gap:10,by:gy+gw+70,lx:178,lw:W-178-56,rx:W-56};}
+  let L={},heroPos={x:0.66,y:0.98};function mkL(){const pad=Math.max(28,Math.round(Math.min(W,H)*0.04)),gap=Math.max(8,Math.round(Math.min(W,H)*0.009));
+    if(W>H){const gw=Math.round(Math.min(H-2*pad,W*0.58)),gx=Math.round((W-gw)/2),gy=Math.round((H-gw)/2);L={land:1,gx,gy,gw,gap};}
+    else{const gw=W-2*pad,gx=pad,gy=H-gw-pad;L={gx,gy,gw,gap};}
     L.cs=(L.gw-2*L.gap)/3;}mkL();
   const V=id=>T.values[id];
-  const T={id:'grid',name:'九宫格出框',desc:'人物冲出格子',values:{},
+  const T={id:'grid',name:'九宫格主角',desc:'九宫格与抠像主角',values:{},
     settings:[{id:'dur',label:'格子节奏',type:'range',min:0.1,max:0.4,step:0.02,value:0.16,unit:'秒',rebuild:1},
       {id:'hold',label:'出框停留',type:'range',min:0.6,max:2.5,step:0.1,value:1.0,unit:'秒',rebuild:1},
-      {id:'nick',label:'昵称',type:'text',value:'旅行日记'},
-      {id:'outline',label:'白色描边',type:'check',value:true},{id:'tilt',label:'3D 倾斜',type:'check',value:true},{id:'dark',label:'深色模式',type:'check',value:false}],
-    note:'只需上传原图：每 9 张一组，页面会自动挑出有人的照片放中间并自动抠出人像（本机运行，不上传）。不满意可点缩略图「★ 设为主角」或用笔刷修补轮廓。',
+      {id:'heroScale',label:'主角大小',type:'range',min:0.55,max:1.45,step:0.05,value:1,unit:'倍'},
+      {id:'outline',label:'白色描边',type:'check',value:true}],
+    note:'选择模板后，点一张照片设为主角并检查抠像。直接在预览里拖动主角，双击可恢复默认位置；最终画面只保留九宫格和抠像人像。',
     needs:'需人像',
     init(){mkL();const N=S.seq.length,G=Math.max(1,Math.ceil(N/9)),groups=[];
       for(let g=0;g<G;g++){const ids=[];for(let k=0;k<9;k++)ids.push(S.seq[(g*9+k)%N]);
@@ -586,14 +586,17 @@ REG.push((()=>{
         keyTimes(){const o=[];for(const g of st.groups){o.push({t:g.cells[5]+0.12,w:0.6});o.push({t:g.cells[8]+0.15,w:1});o.push({t:g.pop+POP+0.3,w:3,pop:1});o.push({t:g.t1-0.12,w:1.2,pop:1});}o.push({t:st.total-0.5,w:2.5,end:1});return o;},
     get duration(){return st?st.total:0},
     get idleT(){const g=st.groups[0];return Math.min(g.t1-0.05,g.pop+POP+0.3);},
+    drag(dx,dy){heroPos.x=clamp(heroPos.x+dx/W,-0.08,1.08);heroPos.y=clamp(heroPos.y+dy/H,0.32,1.14);},
+    dragEnd(){},dragReset(){heroPos={x:0.66,y:0.98};},
     need(t){const {i}=groupAt(Math.min(t,st.total-0.001)),o=[];for(const j of [i,i+1])if(st.groups[j])o.push(...st.groups[j].ids);return o;},
     drawFrame(c,t){ctx=c;render(Math.min(t,st.total-0.001));},
-    info(){return `九宫格出框 · ${st.N} 张 · ${st.groups.length} 组`;},
+    info(){return `九宫格主角 · ${st.N} 张 · ${st.groups.length} 组`;},
     pops(){return st.groups.map(g=>g.pop);},heroes(){return st.groups.map(g=>g.ids[4]);},kinds(){return st.groups.map(g=>g.kind);},
     // 渲染前的准备：只对“被选为主角”的照片跑抠图；没识别到人就换组里下一张候选（逐张试，直到找到有人的或整组都试过）
     async prepare(progress){let n=0;for(;;){T.init(S);const g=st.groups.find(g=>g.kind==='pending');if(!g)break;
         progress&&progress(++n);await SEG.segment(S.items[g.ids[4]]);}T.init(S);return n;},
     notices(){const out=[],bad=[],pend=st.groups.filter(g=>g.kind==='pending').length;st.groups.forEach((g,i)=>{if(g.kind==='none')bad.push(i+1);});
+      if(!S.items.some(it=>it.hero))out.push({lv:'info',text:'请点击下方任意一张人物照片选择主角；会立即打开抠像检查，可自动识别，也可以手动补涂。'});
       if(pend)out.push({lv:'info',text:`正在自动识别人像并抠图（还剩 ${pend} 组），完成后预览会自动更新。`});
       if(bad.length)out.push({lv:'warn',text:`第 ${bad.join('、')} 组的 9 张里没识别到人物，中间这张只能用椭圆贴纸效果。想要人物出框：把一张有人的照片拖进这组，或点这组里有人的照片「★ 设为主角」，也可以用笔刷手动涂出轮廓。`});
       if(!out.length)out.push({lv:'ok',text:`${st.groups.length} 组都已自动找到人物并抠好图（缩略图上标 ✂ 的就是主角）。`});return out;},
@@ -609,7 +612,10 @@ REG.push((()=>{
       else if(it.seg&&it.seg.person){g.imageSmoothingQuality='high';g.drawImage(it.seg.mask,0,0,w,h);}
       else g.drawImage(autoMask(w,h),0,0);}
     const sil=document.createElement('canvas');sil.width=w;sil.height=h;const s2=sil.getContext('2d');s2.drawImage(sub,0,0);s2.globalCompositeOperation='source-in';s2.fillStyle='#fff';s2.fillRect(0,0,w,h);
-    const o={sub,sil};subCache.set(it.id,o);return o;}
+    const pw=160,ph=Math.max(1,Math.round(160*h/w)),pc=document.createElement('canvas');pc.width=pw;pc.height=ph;const pg=pc.getContext('2d',{willReadFrequently:true});pg.drawImage(sub,0,0,pw,ph);
+    const d=pg.getImageData(0,0,pw,ph).data;let x0=pw,y0=ph,x1=-1,y1=-1;for(let y=0;y<ph;y++)for(let x=0;x<pw;x++)if(d[(y*pw+x)*4+3]>24){if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y;}
+    const box=x1>=x0?{x:Math.max(0,(x0-1)/pw*w),y:Math.max(0,(y0-1)/ph*h),w:Math.min(w,(x1-x0+3)/pw*w),h:Math.min(h,(y1-y0+3)/ph*h)}:{x:0,y:0,w,h};
+    const o={sub,sil,box};subCache.set(it.id,o);return o;}
   T.invalidate=i=>{if(S.items[i])subCache.delete(S.items[i].id);};
   function cellRect(k){const r=Math.floor(k/3),c=k%3;return{x:L.gx+c*(L.cs+L.gap),y:L.gy+r*(L.cs+L.gap),s:L.cs};}
   function coverRect(b,R){const s=Math.max(R.s/b.width,R.s/b.height),w=b.width*s,h=b.height*s;return{x:R.x+(R.s-w)/2,y:R.y+(R.s-h)/2,w,h};}
@@ -631,24 +637,20 @@ REG.push((()=>{
       if(S.items[idx].cut){ax.clearRect(0,0,amb.width,amb.height);ax.drawImage(b,0,0,18,32);ctx.fillStyle='#cfd6dd';ctx.fillRect(R.x,R.y,R.s,R.s);ctx.drawImage(amb,R.x,R.y,R.s,R.s);}
       let cr=coverRect(b,R);if(k===4&&popP>0){const k2=1+0.42*popP,axx=R.x+R.s/2,ayy=R.y+R.s;cr={x:axx+(cr.x-axx)*k2,y:ayy+(cr.y-ayy)*k2,w:cr.w*k2,h:cr.h*k2};}
       ctx.drawImage(b,cr.x,cr.y,cr.w,cr.h);if(ap<1){ctx.fillStyle=`rgba(255,255,255,${0.5*(1-ap)})`;ctx.fillRect(R.x,R.y,R.s,R.s);}ctx.restore();}}
-  function subjectLayer(g,popP,float,fade){if(popP<=0)return;const idx=g.ids[4],b=S.get(idx);if(!b)return;const Sb=getSub(idx);if(!Sb)return;
-    const R=cellRect(4),k2=(1+0.42*popP)*(1+0.035*popP),axx=R.x+R.s/2,ayy=R.y+R.s;let cr=coverRect(b,R);cr={x:axx+(cr.x-axx)*k2,y:ayy+(cr.y-ayy)*k2-16*popP+float,w:cr.w*k2,h:cr.h*k2};
-    ctx.save();ctx.globalAlpha=1-fade;ctx.beginPath();ctx.rect(-W,-H,3*W,R.y+R.s+2+H);ctx.clip();
-    ctx.save();ctx.shadowColor=`rgba(0,0,0,${0.38*clamp(popP)})`;ctx.shadowBlur=46;ctx.shadowOffsetY=30*popP;ctx.globalAlpha*=0.9;ctx.drawImage(Sb.sil,cr.x,cr.y,cr.w,cr.h);ctx.restore();
-    if(V('outline')){const r=9*popP;for(let a=0;a<12;a++){const an=a/12*Math.PI*2;ctx.drawImage(Sb.sil,cr.x+Math.cos(an)*r,cr.y+Math.sin(an)*r,cr.w,cr.h);}}
-    ctx.drawImage(Sb.sub,cr.x,cr.y,cr.w,cr.h);ctx.restore();}
-  function render(t){mkL();ctx.setTransform(1,0,0,1,0,0);ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';const bgG=ctx.createLinearGradient(0,0,W,H);bgG.addColorStop(0,'#3a3d44');bgG.addColorStop(1,'#16171a');ctx.fillStyle=bgG;ctx.fillRect(0,0,W,H);
-    const {g,i}=groupAt(t),popP=t<g.pop?0:easeOutBack(clamp((t-g.pop)/POP)),settle=clamp((t-g.pop)/POP);
+  function subjectLayer(g,popP,float,fade){if(popP<=0)return;const idx=g.ids[4],Sb=getSub(idx);if(!Sb)return;const B=Sb.box,reveal=0.72+0.28*clamp(popP);
+    let hh=(W>H?H*0.82:H*0.86)*V('heroScale')*reveal,ww=hh*B.w/B.h;if(ww>W*1.15){const k=W*1.15/ww;ww*=k;hh*=k;}
+    const x=heroPos.x*W-ww/2,y=heroPos.y*H-hh+float;ctx.save();ctx.globalAlpha=1-fade;
+    ctx.save();ctx.shadowColor=`rgba(0,0,0,${0.34*clamp(popP)})`;ctx.shadowBlur=Math.max(20,H*0.024);ctx.shadowOffsetY=Math.max(12,H*0.015);ctx.drawImage(Sb.sil,B.x,B.y,B.w,B.h,x,y,ww,hh);ctx.restore();
+    if(V('outline')){const r=Math.max(5,Math.min(W,H)*0.006)*clamp(popP);for(let a=0;a<14;a++){const an=a/14*Math.PI*2;ctx.drawImage(Sb.sil,B.x,B.y,B.w,B.h,x+Math.cos(an)*r,y+Math.sin(an)*r,ww,hh);}}
+    ctx.drawImage(Sb.sub,B.x,B.y,B.w,B.h,x,y,ww,hh);ctx.restore();}
+  function render(t){mkL();ctx.setTransform(1,0,0,1,0,0);ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';ctx.fillStyle='#fff';ctx.fillRect(0,0,W,H);
+    const {g,i}=groupAt(t),popP=t<g.pop?0:easeOutBack(clamp((t-g.pop)/POP));
     const swapOut=(i<st.groups.length-1)?clamp((t-g.t1)/SWAP):0,float=t>g.pop+POP?Math.sin((t-g.pop-POP)*3.2)*6:0;
-    const tilt=V('tilt')?ease(settle)*(1-swapOut):0,sc=1-0.045*tilt,sk=-0.035*tilt;
-    ctx.save();ctx.translate(W/2,H*0.55);ctx.transform(sc,sk*0.4,sk,sc,0,0);ctx.translate(-W/2,-H*0.55);
-    drawPost(g);cellsLayer(g,t,popP,swapOut);if(tilt>0){ctx.fillStyle=`rgba(0,0,0,${0.12*tilt})`;ctx.fillRect(0,0,W,H);}ctx.restore();
-    if(swapOut>0){const ng=st.groups[i+1];ctx.save();ctx.globalAlpha=ease(swapOut);drawPost(ng);cellsLayer(ng,t,0,0);ctx.restore();}
+    cellsLayer(g,t,popP,swapOut);
+    if(swapOut>0){const ng=st.groups[i+1];ctx.save();ctx.globalAlpha=ease(swapOut);cellsLayer(ng,t,0,0);ctx.restore();}
     subjectLayer(g,popP,float,swapOut);
     for(const f of st.flashes){const d=t-f;if(d>=0&&d<0.12){ctx.fillStyle=`rgba(255,255,255,${0.55*(1-d/0.12)})`;ctx.fillRect(0,0,W,H);}}
-    if(t<INTRO){const u=t/INTRO;ctx.fillStyle=`rgba(0,0,0,${0.82*(1-ease(clamp(u*1.5-0.5)))})`;ctx.fillRect(0,0,W,H);titleBig(ctx,ease(clamp(u*2.2))*(1-clamp((u-0.75)/0.25)),H*0.46,92,(1-ease(clamp(u*2)))*40);}
-    if(t>=st.end){const lt=t-st.end,gr=ctx.createLinearGradient(0,H*0.5,0,H);gr.addColorStop(0,'rgba(0,0,0,0)');gr.addColorStop(1,`rgba(0,0,0,${0.75*clamp(lt/0.4)})`);ctx.fillStyle=gr;ctx.fillRect(0,0,W,H);
-      titleBig(ctx,ease(clamp((lt-0.15)/0.5)),H*0.86,78,0);const fo=clamp((lt-(OUTRO-0.6))/0.6);if(fo>0){ctx.fillStyle=`rgba(0,0,0,${fo})`;ctx.fillRect(0,0,W,H);}}}
+  }
   return T;})());
 
 /* ---------- 模板 4：音乐播放器 ---------- */
@@ -1551,7 +1553,7 @@ function prepareCur(){const T=cur;if(demoMode||!T.prepare||!S.items.length)retur
   const p=(async()=>{const n=await T.prepare(k=>{if(!playing&&T===cur)status(T.prepMsg?T.prepMsg(k):`🧠 正在自动识别人像 / 抠图（第 ${k} 张，本机运行）…`);renderNotices();drawThumbs();});
     prepRun=null;if(T===cur){drawThumbs();renderNotices();if(n){rebuild();if(!playing)drawIdle();refreshCards();}else if(!playing)status(`${T.info()} · 成片约 ${T.duration.toFixed(1)} 秒`+beatSuffix(T));}})();
   prepRun={T,p};return p;}
-function selectTpl(id){const T=REG.find(x=>x.id===id);if(!T)return;const was=playing;stop();cur=T;
+function selectTpl(id){const T=REG.find(x=>x.id===id);if(!T)return;const was=playing;stop();cur=T;if(id==='grid'&&RATIO!=='3:4')setRatio('3:4');
   document.querySelectorAll('.tpl').forEach(d=>d.classList.toggle('on',d.dataset.id===id));buildSettings();rebuild();setBtns(S.items.length>0);
   drawThumbs();cv.style.touchAction=cur.drag?'none':'';cv.style.cursor=cur.drag?'grab':'';if(was)play(false);else drawIdle();prepareCur();}
 
@@ -1627,7 +1629,7 @@ ew.addEventListener('pointerdown',e=>{painting=true;ew.setPointerCapture(e.point
 ew.addEventListener('pointermove',e=>{if(painting)paintAt(e);});ew.addEventListener('pointerup',()=>painting=false);ew.addEventListener('pointercancel',()=>painting=false);
 $('edClear').onclick=()=>{edShowMask(null);edDirty=true;};
 $('edAutoCut').onclick=()=>{const it=S.items[edIdx];it.mask=null;edDirty=false;edAuto();};
-$('edHero').onclick=()=>{const it=S.items[edIdx];it.hero=!it.hero;$('edHero').textContent=it.hero?'★ 取消主角':'★ 设为主角';};
+$('edHero').onclick=()=>{const it=S.items[edIdx],next=!it.hero;if(cur.id==='grid'&&next)S.items.forEach(x=>x.hero=false);it.hero=next;$('edHero').textContent=it.hero?'★ 取消主角':'★ 设为主角';};
 $('edDone').onclick=()=>{const it=S.items[edIdx],cm=$('edMask');
   if(edDirty){const d=cm.getContext('2d').getImageData(0,0,cm.width,cm.height).data;let n=false;for(let i=3;i<d.length;i+=16)if(d[i]>0){n=true;break;}
     if(n){const m=document.createElement('canvas');m.width=cm.width;m.height=cm.height;const g=m.getContext('2d');g.drawImage(cm,0,0);g.globalCompositeOperation='source-in';g.fillStyle='#fff';g.fillRect(0,0,m.width,m.height);it.mask=m;}else it.mask=null;}
